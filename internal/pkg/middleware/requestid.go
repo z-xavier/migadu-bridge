@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
+	"github.com/rs/xid"
 
 	"migadu-bridge/internal/pkg/common"
 )
@@ -14,7 +14,7 @@ func RequestId() gin.HandlerFunc {
 		requestID := c.Request.Header.Get(common.XRequestIDKey)
 
 		if requestID == "" {
-			requestID = uuid.New().String()
+			requestID = xid.New().String()
 		}
 
 		// 将 RequestID 保存在 gin.Context 中，方便后边程序使用

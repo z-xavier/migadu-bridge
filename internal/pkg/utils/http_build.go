@@ -39,13 +39,12 @@ const (
 // HTTPReqBuilder 即可以用于构建 http.Request，也可以用于直接发送请求
 // It is not thread-safe, should not be used in multiple goroutines
 type HTTPReqBuilder struct {
-	ctx    context.Context
-	body   io.Reader
-	header http.Header
-	query  url.Values
-	method string
-	host   string
-	path   string
+	ctx                context.Context
+	body               io.Reader
+	header             http.Header
+	query              url.Values
+	method, host, path string
+	username, password string
 }
 
 // NewHTTPReqBuilder returns a new HTTPReqBuilder
@@ -59,13 +58,11 @@ func ReleaseHTTPReqBuilder(b *HTTPReqBuilder) {
 }
 
 func (b *HTTPReqBuilder) reset() {
-	b.ctx = nil
-	b.body = nil
+	b.ctx, b.body = nil, nil
 	clear(b.header)
 	clear(b.query)
-	b.method = ""
-	b.host = ""
-	b.path = ""
+	b.method, b.host, b.path = "", "", ""
+	b.username, b.password = "", ""
 }
 
 // GetQueryParam 获取 QueryParam
@@ -157,6 +154,16 @@ func (b *HTTPReqBuilder) SetContext(ctx context.Context) *HTTPReqBuilder {
 	return b
 }
 
+func (b *HTTPReqBuilder) SetUserName(username string) *HTTPReqBuilder {
+	b.username = username
+	return b
+}
+
+func (b *HTTPReqBuilder) SetPassWord(password string) *HTTPReqBuilder {
+	b.password = password
+	return b
+}
+
 func (b *HTTPReqBuilder) build() (*http.Request, error) {
 	if b.host == "" {
 		return nil, errors.New("host is required")
@@ -179,6 +186,9 @@ func (b *HTTPReqBuilder) build() (*http.Request, error) {
 		return nil, errors.Wrapf(err, "build client NewRequest err")
 	}
 	req.Header = b.header
+	if b.username != "" && b.password != "" {
+		req.SetBasicAuth(b.username, b.password)
+	}
 	log.C(b.ctx).Debugw("HTTPReqBuilder", "request", req)
 	return req, nil
 }

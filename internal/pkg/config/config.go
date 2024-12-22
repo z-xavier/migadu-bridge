@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	"migadu-bridge/internal/log"
+	"migadu-bridge/internal/pkg/log"
 )
 
 type Config struct {
@@ -23,7 +23,10 @@ type LogConf struct {
 }
 
 type MigaduConf struct {
-	Token string `json:"token" yaml:"token"`
+	Email  string `json:"token" yaml:"token"`
+	APIKey string `json:"api_key" yaml:"api_key"`
+	Domain string `json:"domain" yaml:"domain"` // TODO 可配置
+	//Timeout int    `json:"timeout" yaml:"timeout"`
 }
 
 type ServerConf struct {

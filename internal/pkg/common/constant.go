@@ -1,5 +1,5 @@
 package common
 
 const (
-	XRequestIDKey = "X-Request-ID"
+	XRequestIDKey = "X-Request-Id"
 )

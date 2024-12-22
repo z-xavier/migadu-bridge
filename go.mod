@@ -5,10 +5,11 @@ go 1.23
 require (
 	github.com/gin-contrib/pprof v1.5.1
 	github.com/gin-gonic/gin v1.10.0
-	github.com/google/uuid v1.4.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	go.uber.org/zap v1.21.0
+	github.com/rs/xid v1.6.0
+	github.com/ZhangXavier/migadu-go v0.0.0-20241222011451-78ddc37ad083
 )
 
 require (
