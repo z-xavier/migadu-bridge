@@ -15,8 +15,8 @@ var (
 // IStore 定义了 Store 层需要实现的方法.
 type IStore interface {
 	DB() *gorm.DB
-	//Users() UserStore
-	//Posts() PostStore
+	Token() TokenStore
+	CallLog() CallLogStore
 }
 
 // datastore 是 IStore 的一个具体实现.
@@ -35,4 +35,12 @@ func NewStore(db *gorm.DB) *datastore {
 
 func (d datastore) DB() *gorm.DB {
 	return d.db
+}
+
+func (d datastore) Token() TokenStore {
+	return NewTokenStore(d.db)
+}
+
+func (d datastore) CallLog() CallLogStore {
+	return NewCallLogStore(d.db)
 }

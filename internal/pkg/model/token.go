@@ -8,14 +8,14 @@ import (
 	"migadu-bridge/pkg/api/enum"
 )
 
-type BridgeToken struct {
+type Token struct {
 	Id           string
 	TargetEmail  string
 	MockProvider enum.ProviderEnum
 	Description  string
 	Token        string
-	ExpiryTime   time.Time
-	LastCallTime time.Time
+	ExpiryAt     time.Time
+	LastCalledAt time.Time
 	Status       enum.TokenStatus
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
