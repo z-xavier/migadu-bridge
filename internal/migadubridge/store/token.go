@@ -12,7 +12,7 @@ import (
 type TokenStore interface {
 	Create(ctx context.Context, token *model.Token) (string, error)
 	DeleteById(ctx context.Context, id string) error
-	UpdateById(ctx context.Context, id string, token *model.Token) error
+	UpdateById(ctx context.Context, id string, updates map[string]any) error
 	GetById(ctx context.Context, id string) (*model.Token, error)
 	GetByToken(ctx context.Context, token string) (*model.Token, error) // TODO scanner token
 	List(ctx context.Context, page, pageSize uint64, cond map[string][]any) (int64, []*model.Token, error)
@@ -38,13 +38,16 @@ func (t *tokenStore) DeleteById(ctx context.Context, id string) error {
 	return t.db.WithContext(ctx).Model(&model.Token{}).Delete("id", id).Error
 }
 
-func (t *tokenStore) UpdateById(ctx context.Context, id string, token *model.Token) error {
-	return t.db.WithContext(ctx).Model(&model.Token{}).Where("id", id).Updates(token).Error
+func (t *tokenStore) UpdateById(ctx context.Context, id string, updates map[string]any) error {
+	return t.db.WithContext(ctx).Model(&model.Token{}).Where("id", id).Updates(updates).Error
 }
 
 func (t *tokenStore) GetById(ctx context.Context, id string) (*model.Token, error) {
-	//TODO implement me
-	panic("implement me")
+	var token model.Token
+	if err := t.db.WithContext(ctx).Model(&model.Token{}).Where("id", id).First(&token).Error; err != nil {
+		return nil, err
+	}
+	return &token, nil
 }
 
 func (t *tokenStore) GetByToken(ctx context.Context, token string) (*model.Token, error) {
