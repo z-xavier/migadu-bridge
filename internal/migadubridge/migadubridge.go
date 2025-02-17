@@ -75,7 +75,9 @@ func run() error {
 	interiorWebHandler := gin.New()
 	interiorWebHandler.Use(gin.Recovery(),
 		middleware.Cors(),
-		middleware.RequestId())
+		middleware.RequestId(),
+		middleware.ResponseTime(),
+	)
 	if err := installInteriorWebRouters(interiorWebHandler); err != nil {
 		return err
 	}
@@ -84,7 +86,9 @@ func run() error {
 	webHandler := gin.New()
 	webHandler.Use(gin.Recovery(),
 		middleware.Cors(),
-		middleware.RequestId())
+		middleware.RequestId(),
+		middleware.ResponseTime(),
+	)
 	if err := installRouters(webHandler); err != nil {
 		return err
 	}
