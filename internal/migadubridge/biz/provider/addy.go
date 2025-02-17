@@ -1,4 +1,4 @@
-package bridge
+package provider
 
 import (
 	"context"
@@ -7,10 +7,13 @@ import (
 	"migadu-bridge/internal/pkg/rwords"
 )
 
-type AddyBridge struct {
+type Addy struct{}
+
+func NewAddy() *Addy {
+	return &Addy{}
 }
 
-func (ab *AddyBridge) AliasRandomNew(ctx context.Context, domain, desc string) error {
+func (ab *Addy) AliasRandomNew(ctx context.Context, domain, desc string) error {
 	log.C(ctx).Infow("adding new alias", "domain", domain, "description", desc)
 	client, err := MigaduClient()
 	if err != nil {

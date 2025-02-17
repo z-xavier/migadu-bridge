@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// Errmsg 定义了 migadu-bridge 使用的错误类型.
+// Errmsg 定义了 migadu-provider 使用的错误类型.
 type Errmsg struct {
 	HTTP    int
 	Code    string

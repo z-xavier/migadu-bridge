@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"migadu-bridge/ent"
+	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/config"
 	"migadu-bridge/internal/pkg/log"
 	"migadu-bridge/internal/pkg/middleware"
@@ -25,7 +27,7 @@ var cfgFile string
 func NewMigaduBridgeCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		// 指定命令的名字，该名字会出现在帮助信息中
-		Use: "migadubridge",
+		Use: "migadu-provider",
 		// 命令出错时，不打印帮助信息。不需要打印帮助信息，设置为 true 可以保持命令出错时一眼就能看到错误信息
 		SilenceUsage: true,
 		// 指定调用 cmd.Execute() 时，执行的 Run 函数，函数执行失败会返回错误信息
@@ -47,7 +49,7 @@ func NewMigaduBridgeCommand() *cobra.Command {
 		},
 	}
 	// Cobra 也支持本地标志，本地标志只能在其所绑定的命令上使用
-	cmd.Flags().StringVarP(&cfgFile, "config", "c", "", "The path to the migadu-bridge configuration file. Empty string for no configuration file.")
+	cmd.Flags().StringVarP(&cfgFile, "config", "c", "", "The path to the migadu-provider configuration file. Empty string for no configuration file.")
 	return cmd
 }
 
@@ -65,9 +67,14 @@ func run() error {
 	// 设置 Gin 模式
 	gin.SetMode(config.GetConfig().ServerConf.RunMode)
 
+	// DB Init
+
+	_ = store.NewStore(client)
+
 	// 创建 Gin 内部服务器
 	interiorWebHandler := gin.New()
 	interiorWebHandler.Use(gin.Recovery(),
+		middleware.Cors(),
 		middleware.RequestId())
 	if err := installInteriorWebRouters(interiorWebHandler); err != nil {
 		return err

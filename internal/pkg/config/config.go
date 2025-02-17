@@ -48,7 +48,7 @@ func InitConfig(cfgFile string) error {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// 将用 `$HOME/<recommendedHomeDir>` 目录加入到配置文件的搜索路径中
-		viper.AddConfigPath("/etc/migadu-bridge/")
+		viper.AddConfigPath("/etc/migadu-provider/")
 		viper.AddConfigPath("/config")
 		// 把当前目录加入到配置文件的搜索路径中
 		viper.AddConfigPath("./conf/")

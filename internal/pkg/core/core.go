@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"migadu-bridge/internal/errmsg"
+	"migadu-bridge/internal/pkg/errmsg"
 )
 
 // ErrResponse 定义了发生错误时的返回消息.

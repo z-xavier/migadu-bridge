@@ -3,18 +3,5 @@
 // license that can be found in the LICENSE file. The original repo for
 // this file is https://github.com/marmotedu/miniblog.
 
-package main
-
-import (
-	"os"
-
-	"migadu-bridge/internal/migadubridge"
-)
-
-// Go 程序的默认入口函数(主函数).
-func main() {
-	command := migadubridge.NewMigaduBridgeCommand()
-	if err := command.Execute(); err != nil {
-		os.Exit(1)
-	}
-}
+// Package db provide useful functions to create mysql instance.
+package db // import "github.com/marmotedu/miniblog/pkg/db"
