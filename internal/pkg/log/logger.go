@@ -1,21 +1,22 @@
 package log
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"sync"
 	"sync/atomic"
 
+	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
 	slogzerolog "github.com/samber/slog-zerolog/v2"
 
 	"migadu-bridge/internal/pkg/common"
 )
-
-type Fields map[string]any
 
 // Logger 定义了项目的日志接口. 该接口只包含了支持的日志记录方法.
 type Logger interface {
@@ -56,6 +57,11 @@ var (
 	std atomic.Pointer[sLogger]
 )
 
+var (
+	TraceIdKey     = common.XRequestIDKey
+	ErrorFieldName = zerolog.ErrorFieldName
+)
+
 // 初始化时设置默认 Logger
 func init() {
 	std.Store(NewLogger(NewOptions()))
@@ -83,14 +89,51 @@ func NewLogger(opts *Options) *sLogger {
 	}
 
 	// 设置错误跟踪
-	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	if !opts.DisableStacktrace {
+		zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	}
 
-	zerologLogger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr})
+	zerolog.InterfaceMarshalFunc = func(v interface{}) ([]byte, error) {
+		var buf bytes.Buffer
+		encoder := sonic.ConfigDefault.NewEncoder(&buf)
+		encoder.SetEscapeHTML(false)
+		err := encoder.Encode(v)
+		if err != nil {
+			return nil, err
+		}
+		b := buf.Bytes()
+		if len(b) > 0 {
+			// Remove trailing \n which is added by Encode.
+			return b[:len(b)-1], nil
+		}
+		return b, nil
+	}
+
+	// 配置输出 Writer
+	var writers []io.Writer
+
+	// 设置日志显示格式
+	if opts.Format == "console" {
+		writers = append(writers, zerolog.ConsoleWriter{
+			Out: os.Stderr,
+		})
+	} else {
+		writers = append(writers, os.Stderr)
+	}
+
+	// 设置日志输出目录
+	// 文件输出
+	if opts.FilePath != "" {
+		file, _ := os.OpenFile(opts.FilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+		writers = append(writers, file)
+	}
+
+	zerologLogger := zerolog.New(zerolog.MultiLevelWriter(writers...))
 
 	requestIdFormCtx := func(ctx context.Context) []slog.Attr {
-		if requestID := ctx.Value(common.XRequestIDKey); requestID != nil {
+		if requestID := ctx.Value(TraceIdKey); requestID != nil {
 			if reqID, ok := requestID.(string); ok {
-				return []slog.Attr{slog.String(common.XRequestIDKey, reqID)}
+				return []slog.Attr{slog.String(TraceIdKey, reqID)}
 			}
 		}
 		return []slog.Attr{}
@@ -101,7 +144,7 @@ func NewLogger(opts *Options) *sLogger {
 		Level:           sLevel,
 		Logger:          &zerologLogger,
 		AttrFromContext: []func(ctx context.Context) []slog.Attr{requestIdFormCtx},
-		AddSource:       !opts.DisableCaller,
+		AddSource:       !opts.DisableSource,
 	}.NewZerologHandler())
 
 	slog.SetDefault(s)
@@ -122,7 +165,7 @@ func (l *sLogger) C(ctx context.Context) Logger {
 
 func (l *sLogger) WithError(err error) Logger {
 	return &sLogger{
-		s: l.s.With(zerolog.ErrorFieldName, err),
+		s: l.s.With(ErrorFieldName, err),
 	}
 }
 
