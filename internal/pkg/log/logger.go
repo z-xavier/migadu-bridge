@@ -7,8 +7,10 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"runtime"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog"
@@ -45,7 +47,10 @@ type Logger interface {
 
 type sLogger struct {
 	context context.Context
-	s       *slog.Logger
+	// depth slog 官方不支持调整 caller 的 skip，给出了下列的解决方案。
+	// https://github.com/golang/go/issues/59145#issuecomment-1481920720
+	depth int
+	s     *slog.Logger
 }
 
 var _ Logger = &sLogger{}
@@ -139,119 +144,162 @@ func NewLogger(opts *Options) *sLogger {
 		return []slog.Attr{}
 	}
 
+	replaceSource := func(groups []string, a slog.Attr) slog.Attr {
+		// TODO 等 zerolog 官方适配 slog，后续观察
+		// 当前 zerlog 不支持 group，故第三方 zerolog - slog 适配器，source 是分三个字段处理的。
+		// 无法优雅适配。如果选用 slog 后端，可以这样处理。
+		// https://github.com/golang/go/issues/59145#issuecomment-1481920720
+		//if a.Key == slog.SourceKey {
+		//	// 调整skip值以匹配你的调用层级
+		//	const skipOffset = 8 // 可能需要根据实际情况调整此值
+		//	pc := make([]uintptr, 1)
+		//	if n := runtime.Callers(skipOffset, pc); n > 0 {
+		//		frame, _ := runtime.CallersFrames(pc).Next()
+		//		return slog.Any(slog.SourceKey, &slog.Source{
+		//			Function: frame.Function,
+		//			File:     frame.File,
+		//			Line:     frame.Line,
+		//		})
+		//	}
+		//}
+		return a
+	}
+
 	// 使用 cfg 创建 *slog.Logger 对象
 	s := slog.New(slogzerolog.Option{
 		Level:           sLevel,
 		Logger:          &zerologLogger,
 		AttrFromContext: []func(ctx context.Context) []slog.Attr{requestIdFormCtx},
 		AddSource:       !opts.DisableSource,
+		ReplaceAttr:     replaceSource,
 	}.NewZerologHandler())
 
 	slog.SetDefault(s)
 
 	logger := &sLogger{
-		s: s,
+		depth: 4,
+		s:     s,
 	}
 
 	return logger
 }
 
+func (l *sLogger) log(level slog.Level, msg string, keysAndValues ...any) {
+	if !l.s.Enabled(l.context, slog.LevelInfo) {
+		return
+	}
+	ctx := l.context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	var pcs [1]uintptr
+	runtime.Callers(l.depth, pcs[:])
+	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
+	r.Add(keysAndValues...)
+	_ = l.s.Handler().Handle(ctx, r)
+}
+
 func (l *sLogger) C(ctx context.Context) Logger {
 	return &sLogger{
 		context: ctx,
+		depth:   3,
 		s:       l.s,
 	}
 }
 
 func (l *sLogger) WithError(err error) Logger {
 	return &sLogger{
-		s: l.s.With(ErrorFieldName, err),
+		context: l.context,
+		depth:   3,
+		s:       l.s.With(ErrorFieldName, err),
 	}
 }
 
 func (l *sLogger) WithField(key string, value any) Logger {
 	return &sLogger{
 		context: l.context,
+		depth:   3,
 		s:       l.s.With(key, value),
 	}
 }
 
 func (l *sLogger) Debug(a ...any) {
-	l.s.DebugContext(l.context, fmt.Sprint(a...))
+	l.log(slog.LevelDebug, fmt.Sprint(a...))
 }
 
 func (l *sLogger) Debugw(msg string, keysAndValues ...any) {
-	l.s.DebugContext(l.context, msg, keysAndValues...)
+	l.log(slog.LevelDebug, msg, keysAndValues...)
 }
 
 func (l *sLogger) Debugf(format string, args ...any) {
-	l.s.DebugContext(l.context, fmt.Sprintf(format, args...))
+	l.log(slog.LevelDebug, fmt.Sprintf(format, args...))
 }
 
 func (l *sLogger) Info(a ...any) {
-	l.s.InfoContext(l.context, fmt.Sprint(a...))
+	l.log(slog.LevelInfo, fmt.Sprint(a...))
 }
 
 func (l *sLogger) Infow(msg string, keysAndValues ...any) {
-	l.s.InfoContext(l.context, msg, keysAndValues...)
+	l.log(slog.LevelInfo, msg, keysAndValues...)
 }
 
 func (l *sLogger) Infof(format string, args ...any) {
-	l.s.InfoContext(l.context, fmt.Sprintf(format, args...))
+	l.log(slog.LevelInfo, fmt.Sprintf(format, args...))
 }
 
 func (l *sLogger) Warn(a ...any) {
-	l.s.WarnContext(l.context, fmt.Sprint(a...))
+	l.log(slog.LevelWarn, fmt.Sprint(a...))
 }
 
 func (l *sLogger) Warnw(msg string, keysAndValues ...any) {
-	l.s.WarnContext(l.context, msg, keysAndValues...)
+	l.log(slog.LevelWarn, msg, keysAndValues...)
 }
 
 func (l *sLogger) Warnf(format string, args ...any) {
-	l.s.WarnContext(l.context, fmt.Sprintf(format, args...))
+	l.log(slog.LevelWarn, fmt.Sprintf(format, args...))
 }
 
 func (l *sLogger) Error(a ...any) {
-	l.s.ErrorContext(l.context, fmt.Sprint(a...))
+	l.log(slog.LevelError, fmt.Sprint(a...))
 }
 
 func (l *sLogger) Errorw(msg string, keysAndValues ...any) {
-	l.s.ErrorContext(l.context, msg, keysAndValues...)
+	l.log(slog.LevelError, msg, keysAndValues...)
 }
 
 func (l *sLogger) Errorf(format string, args ...any) {
-	l.s.ErrorContext(l.context, fmt.Sprintf(format, args...))
+	l.log(slog.LevelError, fmt.Sprintf(format, args...))
 }
 
 func (l *sLogger) Panic(a ...any) {
 	msg := fmt.Sprint(a...)
-	l.s.ErrorContext(l.context, msg)
+	l.log(slog.LevelError, msg)
 	panic(msg)
 }
 
 func (l *sLogger) Panicw(msg string, keysAndValues ...any) {
-	l.s.ErrorContext(l.context, msg, keysAndValues...)
+	l.log(slog.LevelError, msg, keysAndValues...)
 	panic(msg)
 }
 
 func (l *sLogger) Panicf(format string, a ...any) {
 	msg := fmt.Sprintf(format, a...)
-	l.s.ErrorContext(l.context, msg)
+	l.log(slog.LevelError, msg)
 	panic(msg)
 }
 
 func (l *sLogger) Fatal(a ...any) {
-	l.s.ErrorContext(l.context, fmt.Sprint(a...))
+	l.log(slog.LevelError, fmt.Sprint(a...))
 	os.Exit(1)
 }
 
 func (l *sLogger) Fatalw(msg string, keysAndValues ...any) {
-	l.s.ErrorContext(l.context, msg, keysAndValues...)
+	l.log(slog.LevelError, msg, keysAndValues...)
 	os.Exit(1)
 }
 
 func (l *sLogger) Fatalf(format string, a ...any) {
-	l.s.ErrorContext(l.context, fmt.Sprintf(format, a...))
+	l.log(slog.LevelError, fmt.Sprintf(format, a...))
 	os.Exit(1)
 }

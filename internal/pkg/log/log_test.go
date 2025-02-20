@@ -17,8 +17,10 @@ func TestInfoConcurrent(t *testing.T) {
 			defer wg.Done()
 			// 并发调用日志方法
 			ctx := context.WithValue(context.Background(), common.XRequestIDKey, fmt.Sprintf("req-%d", id))
-			log := C(ctx)
-			log.WithField("goroutine", id).Info("concurrent log test")
+			l := C(ctx)
+			l.WithField("goroutine", id).Info("concurrent log test")
+
+			Infow("concurrent log test", "goroutine", id, common.XRequestIDKey, fmt.Sprintf("req-%d", id))
 		}(i)
 	}
 	wg.Wait()
