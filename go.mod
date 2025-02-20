@@ -6,14 +6,15 @@ toolchain go1.24.0
 
 require (
 	github.com/ZhangXavier/migadu-go v0.0.0-20241222011451-78ddc37ad083
-	github.com/bytedance/sonic v1.12.8
+	github.com/bytedance/sonic v1.12.9
 	github.com/gin-contrib/pprof v1.5.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.6.0
+	github.com/rs/zerolog v1.33.0
+	github.com/samber/slog-zerolog/v2 v2.7.3
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.19.0
-	go.uber.org/zap v1.27.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
 )
@@ -37,6 +38,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -44,6 +46,8 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
+	github.com/samber/lo v1.47.0 // indirect
+	github.com/samber/slog-common v0.18.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
