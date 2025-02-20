@@ -7,7 +7,7 @@ import (
 	"migadu-bridge/pkg/db"
 )
 
-// initStore 读取 db 配置，创建 gorm.DB 实例，并初始化 miniblog store 层.
+// initStore 读取 db 配置，创建 gorm.DB 实例，并初始化 migadu store 层.
 func initStore() error {
 	dbOptions := &db.MySQLOptions{
 		Host:                  viper.GetString("db.host"),

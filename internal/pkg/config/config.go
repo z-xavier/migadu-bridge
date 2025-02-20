@@ -74,11 +74,11 @@ func InitConfig(cfgFile string) error {
 
 	// 读取配置文件。如果指定了配置文件名，则使用指定的配置文件，否则在注册的搜索路径中搜索
 	if err := viper.ReadInConfig(); err != nil {
-		log.Errorw("Failed to read viper configuration file", "err", err)
+		log.WithError(err).Error("Failed to read viper configuration file")
 		return err
 	}
 	if err := viper.Unmarshal(&config); err != nil {
-		log.Errorw("Failed to unmarshal viper configuration", "err", err)
+		log.WithError(err).Error("Failed to unmarshal viper configuration")
 		return err
 	}
 
@@ -91,10 +91,10 @@ func InitConfig(cfgFile string) error {
 // 注意：`viper.Get<Type>()` 中 key 的名字需要使用 `.` 分割，以跟 YAML 中保持相同的缩进.
 func LogOptions() *log.Options {
 	return &log.Options{
-		DisableCaller:     config.LogConf.DisableCaller,
-		DisableStacktrace: config.LogConf.DisableStacktrace,
-		Level:             config.LogConf.Level,
-		Format:            config.LogConf.Format,
-		OutputPaths:       config.LogConf.OutputPaths,
+		DisableCaller: config.LogConf.DisableCaller,
+		//DisableStacktrace: config.LogConf.DisableStacktrace,
+		Level: config.LogConf.Level,
+		//Format:            config.LogConf.Format,
+		//OutputPaths:       config.LogConf.OutputPaths,
 	}
 }

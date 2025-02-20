@@ -19,7 +19,7 @@ func installInteriorWebRouters(g *gin.Engine) error {
 
 	pprof.Register(g)
 	g.GET("/health", func(c *gin.Context) {
-		log.C(c).Infow("Healthz function called")
+		log.C(c).Info("Healthz function called")
 
 		core.WriteResponse(c, nil, map[string]string{"status": "ok"})
 	})

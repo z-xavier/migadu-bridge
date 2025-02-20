@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"sync"
+	"sync/atomic"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
@@ -22,16 +23,22 @@ type Logger interface {
 	WithError(err error) Logger
 	WithField(key string, value any) Logger
 	Debug(a ...any)
+	Debugw(msg string, keysAndValues ...any)
 	Debugf(format string, args ...any)
 	Info(a ...any)
+	Infow(msg string, keysAndValues ...any)
 	Infof(format string, args ...any)
 	Warn(a ...any)
+	Warnw(msg string, keysAndValues ...any)
 	Warnf(format string, args ...any)
 	Error(a ...any)
+	Errorw(msg string, keysAndValues ...any)
 	Errorf(format string, args ...any)
 	Panic(a ...any)
+	Panicw(msg string, keysAndValues ...any)
 	Panicf(format string, args ...any)
 	Fatal(a ...any)
+	Fatalw(msg string, keysAndValues ...any)
 	Fatalf(format string, args ...any)
 }
 
@@ -46,15 +53,20 @@ var (
 	mu sync.Mutex
 
 	// std 定义了默认的全局 Logger.
-	std = NewLogger(NewOptions())
+	std atomic.Pointer[sLogger]
 )
+
+// 初始化时设置默认 Logger
+func init() {
+	std.Store(NewLogger(NewOptions()))
+}
 
 // Init 使用指定的选项初始化 Logger.
 func Init(opts *Options) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	std = NewLogger(opts)
+	std.Store(NewLogger(opts)) // 原子存储
 }
 
 // NewLogger 根据传入的 opts 创建 Logger.
@@ -125,12 +137,20 @@ func (l *sLogger) Debug(a ...any) {
 	l.s.DebugContext(l.context, fmt.Sprint(a...))
 }
 
+func (l *sLogger) Debugw(msg string, keysAndValues ...any) {
+	l.s.DebugContext(l.context, msg, keysAndValues...)
+}
+
 func (l *sLogger) Debugf(format string, args ...any) {
 	l.s.DebugContext(l.context, fmt.Sprintf(format, args...))
 }
 
 func (l *sLogger) Info(a ...any) {
 	l.s.InfoContext(l.context, fmt.Sprint(a...))
+}
+
+func (l *sLogger) Infow(msg string, keysAndValues ...any) {
+	l.s.InfoContext(l.context, msg, keysAndValues...)
 }
 
 func (l *sLogger) Infof(format string, args ...any) {
@@ -141,12 +161,20 @@ func (l *sLogger) Warn(a ...any) {
 	l.s.WarnContext(l.context, fmt.Sprint(a...))
 }
 
+func (l *sLogger) Warnw(msg string, keysAndValues ...any) {
+	l.s.WarnContext(l.context, msg, keysAndValues...)
+}
+
 func (l *sLogger) Warnf(format string, args ...any) {
 	l.s.WarnContext(l.context, fmt.Sprintf(format, args...))
 }
 
 func (l *sLogger) Error(a ...any) {
 	l.s.ErrorContext(l.context, fmt.Sprint(a...))
+}
+
+func (l *sLogger) Errorw(msg string, keysAndValues ...any) {
+	l.s.ErrorContext(l.context, msg, keysAndValues...)
 }
 
 func (l *sLogger) Errorf(format string, args ...any) {
@@ -159,6 +187,11 @@ func (l *sLogger) Panic(a ...any) {
 	panic(msg)
 }
 
+func (l *sLogger) Panicw(msg string, keysAndValues ...any) {
+	l.s.ErrorContext(l.context, msg, keysAndValues...)
+	panic(msg)
+}
+
 func (l *sLogger) Panicf(format string, a ...any) {
 	msg := fmt.Sprintf(format, a...)
 	l.s.ErrorContext(l.context, msg)
@@ -167,6 +200,11 @@ func (l *sLogger) Panicf(format string, a ...any) {
 
 func (l *sLogger) Fatal(a ...any) {
 	l.s.ErrorContext(l.context, fmt.Sprint(a...))
+	os.Exit(1)
+}
+
+func (l *sLogger) Fatalw(msg string, keysAndValues ...any) {
+	l.s.ErrorContext(l.context, msg, keysAndValues...)
 	os.Exit(1)
 }
 
