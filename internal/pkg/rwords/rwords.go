@@ -21,7 +21,7 @@ import (
 var UnixWordsPath = ""
 
 const DefaultUnixWordsPath = "/usr/share/dict/words"
-const EmbedWordsPath = "embedWord/words"
+const EmbedWordsPath = "words"
 
 //go:embed words
 var embedWord embed.FS
