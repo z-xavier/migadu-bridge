@@ -2,7 +2,6 @@ package rwords
 
 import (
 	"bufio"
-	"context"
 	crand "crypto/rand"
 	"embed"
 	"errors"
@@ -19,10 +18,9 @@ import (
 	"migadu-bridge/internal/pkg/log"
 )
 
-var UnixWordsPath = "/usr/share/dict/words"
+var UnixWordsPath = ""
 
 const DefaultUnixWordsPath = "/usr/share/dict/words"
-
 const EmbedWordsPath = "embedWord/words"
 
 //go:embed words
@@ -36,9 +34,9 @@ var words = sync.OnceValue(func() []string {
 	var r io.Reader
 
 	if file, err := os.Open(UnixWordsPath); err != nil {
-		log.WithError(err).Infof("Fatal Get Words From UnixWordsPath: %s.", UnixWordsPath)
+		log.WithError(err).WithField("path", UnixWordsPath).Infof("Failed to Get Words From UnixWordsPath, Try Embed.")
 		if fs, err := embedWord.Open(EmbedWordsPath); err != nil {
-			log.WithError(err).Infof("Fatal Get Words From Embed.")
+			log.WithError(err).Fatalw("Failed to open embedded words.")
 			return []string{}
 		} else {
 			defer fs.Close()
@@ -47,11 +45,7 @@ var words = sync.OnceValue(func() []string {
 		}
 	} else {
 		defer file.Close()
-		log.Infow("Get Words From Embed.")
-
-		log.C(context.Background()).
-			WithField("path", UnixWordsPath).
-			Infow("Get Words From UnixWordsPath.")
+		log.WithField("path", UnixWordsPath).Infow("Get Words From UnixWordsPath.")
 		r = file
 	}
 
