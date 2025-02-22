@@ -185,19 +185,20 @@ func NewLogger(opts *Options) *sLogger {
 }
 
 func (l *sLogger) log(level slog.Level, msg string, keysAndValues ...any) {
-	if !l.s.Enabled(l.context, slog.LevelInfo) {
+	if !l.s.Enabled(l.context, level) {
 		return
-	}
-	ctx := l.context
-	if ctx == nil {
-		ctx = context.Background()
 	}
 
 	var pcs [1]uintptr
 	runtime.Callers(l.depth, pcs[:])
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
 	r.Add(keysAndValues...)
-	_ = l.s.Handler().Handle(ctx, r)
+
+	if l.context == nil {
+		l.context = context.Background()
+	}
+
+	_ = l.s.Handler().Handle(l.context, r)
 }
 
 func (l *sLogger) C(ctx context.Context) Logger {
