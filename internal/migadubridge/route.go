@@ -4,6 +4,7 @@ import (
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 
+	"migadu-bridge/internal/migadubridge/controller/call_logs"
 	"migadu-bridge/internal/migadubridge/controller/tokens"
 	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/core"
@@ -25,6 +26,7 @@ func installInteriorWebRouters(g *gin.Engine) error {
 	})
 
 	tc := tokens.New(store.S)
+	cc := call_logs.New(store.S)
 
 	v1 := g.Group("/api/v1")
 	{
@@ -36,6 +38,11 @@ func installInteriorWebRouters(g *gin.Engine) error {
 			tokenV1.PATCH(":tokenId", tc.Patch)
 			tokenV1.GET("", tc.List)
 			tokenV1.GET(":tokenId", tc.Get)
+		}
+
+		callLogV1 := v1.Group("/calllogs")
+		{
+			callLogV1.GET("", cc.List)
 		}
 	}
 

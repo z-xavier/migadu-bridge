@@ -5,8 +5,8 @@ import "time"
 type CallLog struct {
 	Model
 	TokenId     string    `json:"token_id"`
-	RequestPath string    `json:"request_path"`
 	GenAlias    string    `json:"gen_alias"`
-	RequestAt   time.Time `json:"request_at"`
+	RequestPath string    `json:"request_path"`
 	RequestIp   string    `json:"request_ip"`
+	RequestAt   time.Time `json:"request_at"`
 }

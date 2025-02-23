@@ -15,4 +15,5 @@ type Token struct {
 	ExpiryAt     time.Time         `json:"expiry_at"`
 	LastCalledAt time.Time         `json:"last_called_at"`
 	Status       enum.TokenStatus  `json:"status,omitempty"`
+	CallLogs     []CallLog         `gorm:"foreignKey:TokenId"`
 }

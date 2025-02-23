@@ -41,6 +41,7 @@ func NewMySQL(opts *MySQLOptions) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.Open(opts.DSN()), &gorm.Config{
 		Logger:                                   logger.Default.LogMode(logLevel),
 		DisableForeignKeyConstraintWhenMigrating: true,
+		PrepareStmt:                              true,
 	})
 	if err != nil {
 		return nil, err

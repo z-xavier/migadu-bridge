@@ -35,6 +35,7 @@ func NewSqlite(opts *SqliteOptions) (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
 		Logger:                                   logger.Default.LogMode(logLevel),
 		DisableForeignKeyConstraintWhenMigrating: true,
+		PrepareStmt:                              true,
 	})
 
 	if err != nil {

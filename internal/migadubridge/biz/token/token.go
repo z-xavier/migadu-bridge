@@ -1,12 +1,14 @@
 package token
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/xid"
+	"gorm.io/gorm"
 
 	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/errmsg"
@@ -61,6 +63,9 @@ func (t *tokenBiz) Create(ctx *gin.Context, createToken *v1.CreateTokenReq) (*v1
 }
 
 func (t *tokenBiz) Delete(ctx *gin.Context, id string) error {
+	if _, err := t.ds.Token().GetById(ctx, id); err != nil {
+		return err
+	}
 	return t.ds.Token().DeleteById(ctx, id)
 }
 
@@ -108,61 +113,61 @@ func (t *tokenBiz) Patch(ctx *gin.Context, id string, req *v1.PatchTokenReq) (*v
 	return t.transModelToVo(tmp), nil
 }
 
-func (t *tokenBiz) List(ctx *gin.Context, listTokenReq *v1.ListTokenReq) (*v1.ListTokenResp, error) {
-	if listTokenReq.Page == 0 {
-		listTokenReq.Page = 1
+func (t *tokenBiz) List(ctx *gin.Context, req *v1.ListTokenReq) (*v1.ListTokenResp, error) {
+	if req.Page == 0 {
+		req.Page = 1
 	}
 
-	if listTokenReq.PageSize == 0 {
-		listTokenReq.PageSize = 10
+	if req.PageSize == 0 {
+		req.PageSize = 10
 	}
 
-	if len(listTokenReq.OrderBy) == 0 {
-		listTokenReq.OrderBy = []string{"updated_at:desc"}
+	if len(req.OrderBy) == 0 {
+		req.OrderBy = []string{"updated_at:desc"}
 	}
 
 	cond := map[string][]any{}
-	if listTokenReq.TargetEmail != "" {
-		cond["targetEmail like ?"] = []any{"%" + listTokenReq.TargetEmail + "%"}
+	if req.TargetEmail != "" {
+		cond["targetEmail like ?"] = []any{"%" + req.TargetEmail + "%"}
 	}
-	if listTokenReq.MockProvider != "" {
-		cond["mockProvider = ?"] = []any{listTokenReq.MockProvider}
+	if req.MockProvider != "" {
+		cond["mockProvider = ?"] = []any{req.MockProvider}
 	}
-	if listTokenReq.Description != "" {
-		cond["description like ?"] = []any{"%" + listTokenReq.Description + "%"}
+	if req.Description != "" {
+		cond["description like ?"] = []any{"%" + req.Description + "%"}
 	}
-	if listTokenReq.ExpiryAtBegin != 0 {
-		cond["expiry_at >= ?"] = []any{time.Unix(listTokenReq.ExpiryAtBegin, 0)}
+	if req.ExpiryAtBegin != 0 {
+		cond["expiry_at >= ?"] = []any{time.Unix(req.ExpiryAtBegin, 0)}
 	}
-	if listTokenReq.ExpiryAtEnd != 0 {
-		cond["expiry_at <= ?"] = []any{time.Unix(listTokenReq.ExpiryAtEnd, 0)}
+	if req.ExpiryAtEnd != 0 {
+		cond["expiry_at <= ?"] = []any{time.Unix(req.ExpiryAtEnd, 0)}
 	}
-	if listTokenReq.LastCalledAtBegin != 0 {
-		cond["last_called_at >= ?"] = []any{time.Unix(listTokenReq.LastCalledAtBegin, 0)}
+	if req.LastCalledAtBegin != 0 {
+		cond["last_called_at >= ?"] = []any{time.Unix(req.LastCalledAtBegin, 0)}
 	}
-	if listTokenReq.LastCalledAtEnd != 0 {
-		cond["last_called_at <= ?"] = []any{time.Unix(listTokenReq.LastCalledAtEnd, 0)}
+	if req.LastCalledAtEnd != 0 {
+		cond["last_called_at <= ?"] = []any{time.Unix(req.LastCalledAtEnd, 0)}
 	}
-	if listTokenReq.UpdatedAtBegin != 0 {
-		cond["updated_at >= ?"] = []any{time.Unix(listTokenReq.UpdatedAtBegin, 0)}
+	if req.UpdatedAtBegin != 0 {
+		cond["updated_at >= ?"] = []any{time.Unix(req.UpdatedAtBegin, 0)}
 	}
-	if listTokenReq.UpdatedAtEnd != 0 {
-		cond["updated_at <= ?"] = []any{time.Unix(listTokenReq.UpdatedAtEnd, 0)}
+	if req.UpdatedAtEnd != 0 {
+		cond["updated_at <= ?"] = []any{time.Unix(req.UpdatedAtEnd, 0)}
 	}
-	if listTokenReq.Status != 0 {
-		cond["status = ?"] = []any{listTokenReq.Status}
+	if req.Status != 0 {
+		cond["status = ?"] = []any{req.Status}
 	}
 
 	var orderBy []any
-	for _, o := range listTokenReq.OrderBy {
+	for _, o := range req.OrderBy {
 		parts := strings.Split(o, ":")
 		if len(parts) == 2 {
 			orderBy = append(orderBy, fmt.Sprintf("%s %s", parts[0], parts[1]))
 		}
 	}
 
-	count, tokenList, err := t.ds.Token().List(ctx, listTokenReq.Page, listTokenReq.PageSize, cond, orderBy)
-	if err != nil {
+	count, tokenList, err := t.ds.Token().ListWithPage(ctx, req.Page, req.PageSize, cond, orderBy)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
@@ -173,9 +178,9 @@ func (t *tokenBiz) List(ctx *gin.Context, listTokenReq *v1.ListTokenReq) (*v1.Li
 
 	return &v1.ListTokenResp{
 		Page: v1.Page{
-			Page:     listTokenReq.Page,
-			PageSize: listTokenReq.PageSize,
-			Total:    uint64(count),
+			Page:     req.Page,
+			PageSize: req.PageSize,
+			Total:    count,
 		},
 		List: tokens,
 	}, nil
