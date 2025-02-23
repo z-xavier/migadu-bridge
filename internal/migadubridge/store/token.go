@@ -15,7 +15,7 @@ type TokenStore interface {
 	UpdateById(ctx context.Context, id string, updates map[string]any) error
 	GetById(ctx context.Context, id string) (*model.Token, error)
 	GetByToken(ctx context.Context, token string) (*model.Token, error) // TODO scanner token
-	List(ctx context.Context, page, pageSize uint64, cond map[string][]any) (int64, []*model.Token, error)
+	List(ctx context.Context, page, pageSize uint64, cond map[string][]any, orderBy []any) (int64, []*model.Token, error)
 }
 
 type tokenStore struct {
@@ -55,7 +55,7 @@ func (t *tokenStore) GetByToken(ctx context.Context, token string) (*model.Token
 	panic("implement me")
 }
 
-func (t *tokenStore) List(ctx context.Context, page, pageSize uint64, cond map[string][]any) (int64, []*model.Token, error) {
+func (t *tokenStore) List(ctx context.Context, page, pageSize uint64, cond map[string][]any, orderBy []any) (int64, []*model.Token, error) {
 	db := t.db.WithContext(ctx).Model(&model.Token{})
 
 	if cond != nil {
@@ -75,8 +75,11 @@ func (t *tokenStore) List(ctx context.Context, page, pageSize uint64, cond map[s
 	}
 
 	var tokens []*model.Token
+
+	for _, o := range orderBy {
+		session = session.Order(o)
+	}
 	if err := session.
-		Order("updated_at DESC").
 		Offset(int((page - 1) * pageSize)).
 		Limit(int(pageSize)).
 		Find(&tokens).Error; err != nil {

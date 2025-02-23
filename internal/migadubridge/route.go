@@ -32,7 +32,8 @@ func installInteriorWebRouters(g *gin.Engine) error {
 		{
 			tokenV1.POST("", tc.Create)
 			tokenV1.DELETE(":tokenId", tc.Delete)
-			tokenV1.PUT(":tokenId", tc.Update)
+			tokenV1.PUT(":tokenId", tc.Put)
+			tokenV1.PATCH(":tokenId", tc.Patch)
 			tokenV1.GET("", tc.List)
 			tokenV1.GET(":tokenId", tc.Get)
 		}

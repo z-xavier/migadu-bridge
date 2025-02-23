@@ -15,7 +15,7 @@ type Options struct {
 	// 指定日志显示格式，可选值：console, json
 	Format string
 	// 指定日志输出位置
-	FilePath string
+	OutputPaths []string
 }
 
 // NewOptions 创建一个带有默认参数的 Options 对象.
@@ -25,5 +25,6 @@ func NewOptions() *Options {
 		DisableStacktrace: false,
 		Level:             slog.LevelInfo.String(),
 		Format:            "console",
+		OutputPaths:       []string{"stdout"},
 	}
 }

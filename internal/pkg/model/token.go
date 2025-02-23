@@ -3,21 +3,16 @@ package model
 import (
 	"time"
 
-	"gorm.io/gorm"
-
 	"migadu-bridge/pkg/api/enum"
 )
 
 type Token struct {
-	Id           string
-	TargetEmail  string
-	MockProvider enum.ProviderEnum
-	Description  string
-	Token        string
-	ExpiryAt     time.Time
-	LastCalledAt time.Time
-	Status       enum.TokenStatus
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
+	Model
+	TargetEmail  string            `json:"target_email,omitempty"`
+	MockProvider enum.ProviderEnum `json:"mock_provider,omitempty"`
+	Description  string            `json:"description,omitempty"`
+	Token        string            `json:"token,omitempty"`
+	ExpiryAt     time.Time         `json:"expiry_at"`
+	LastCalledAt time.Time         `json:"last_called_at"`
+	Status       enum.TokenStatus  `json:"status,omitempty"`
 }

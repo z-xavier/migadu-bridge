@@ -80,16 +80,56 @@ func Init(opts *Options) {
 	std.Store(NewLogger(opts)) // 原子存储
 }
 
+// writerFactory 用于创建不同类型的日志输出writer
+type writerFactory struct {
+	format string
+}
+
+// createWriter 根据输出类型创建对应的writer
+func (f *writerFactory) createWriter(output string) (io.Writer, error) {
+	switch output {
+	case "stdout", "stderr":
+		return f.createStdWriter(output)
+	default:
+		return f.createFileWriter(output)
+	}
+}
+
+// createStdWriter 创建标准输出的writer
+func (f *writerFactory) createStdWriter(output string) (io.Writer, error) {
+	stdOut := os.Stdout
+	if output == "stderr" {
+		stdOut = os.Stderr
+	}
+
+	if f.format == "console" {
+		return zerolog.ConsoleWriter{Out: stdOut}, nil
+	}
+	return stdOut, nil
+}
+
+// createFileWriter 创建文件输出的writer
+func (f *writerFactory) createFileWriter(path string) (io.Writer, error) {
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open log file %q: %v", path, err)
+	}
+
+	if f.format == "console" {
+		return zerolog.ConsoleWriter{Out: file}, nil
+	}
+	return file, nil
+}
+
 // NewLogger 根据传入的 opts 创建 Logger.
 func NewLogger(opts *Options) *sLogger {
 	if opts == nil {
 		opts = NewOptions()
 	}
 
-	// 将文本格式的日志级别，例如 info 转换为 slog.Level 类型以供后面使用
+	// 设置日志级别
 	var sLevel slog.Level
 	if err := sLevel.UnmarshalText([]byte(opts.Level)); err != nil {
-		// 如果指定了非法的日志级别，则默认使用 info 级别
 		sLevel = slog.LevelInfo
 	}
 
@@ -98,6 +138,7 @@ func NewLogger(opts *Options) *sLogger {
 		zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	}
 
+	// 配置 JSON 序列化
 	zerolog.InterfaceMarshalFunc = func(v interface{}) ([]byte, error) {
 		var buf bytes.Buffer
 		encoder := sonic.ConfigDefault.NewEncoder(&buf)
@@ -108,31 +149,29 @@ func NewLogger(opts *Options) *sLogger {
 		}
 		b := buf.Bytes()
 		if len(b) > 0 {
-			// Remove trailing \n which is added by Encode.
-			return b[:len(b)-1], nil
+			return b[:len(b)-1], nil // Remove trailing \n
 		}
 		return b, nil
 	}
 
-	// 配置输出 Writer
+	// 配置输出
+	if len(opts.OutputPaths) == 0 {
+		opts.OutputPaths = []string{"stdout"}
+	}
+
+	factory := &writerFactory{format: opts.Format}
 	var writers []io.Writer
 
-	// 设置日志显示格式
-	if opts.Format == "console" {
-		writers = append(writers, zerolog.ConsoleWriter{
-			Out: os.Stderr,
-		})
-	} else {
-		writers = append(writers, os.Stderr)
+	for _, output := range opts.OutputPaths {
+		writer, err := factory.createWriter(output)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			continue
+		}
+		writers = append(writers, writer)
 	}
 
-	// 设置日志输出目录
-	// 文件输出
-	if opts.FilePath != "" {
-		file, _ := os.OpenFile(opts.FilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-		writers = append(writers, file)
-	}
-
+	// 创建 zerolog logger
 	zerologLogger := zerolog.New(zerolog.MultiLevelWriter(writers...))
 
 	requestIdFormCtx := func(ctx context.Context) []slog.Attr {

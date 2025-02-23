@@ -1,14 +1,13 @@
 package tokens
 
 import (
-	"errors"
-
 	"github.com/gin-gonic/gin"
 
 	"migadu-bridge/internal/migadubridge/biz"
 	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/common"
 	"migadu-bridge/internal/pkg/core"
+	"migadu-bridge/internal/pkg/errmsg"
 	"migadu-bridge/internal/pkg/log"
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
@@ -29,7 +28,7 @@ func (tc *TokenController) Create(c *gin.Context) {
 	var r v1.CreateTokenReq
 	if err := c.ShouldBind(&r); err != nil {
 		log.C(c).Errorf("create token request parse error: %s", err.Error())
-		core.WriteResponse(c, err, nil)
+		core.WriteResponse(c, errmsg.ErrBind.SetMessage(err.Error()), nil)
 		return
 	}
 
@@ -50,7 +49,7 @@ func (tc *TokenController) Delete(c *gin.Context) {
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
 		log.C(c).Errorf("token id is empty")
-		core.WriteResponse(c, errors.New("token id is required"), nil)
+		core.WriteResponse(c, errmsg.ErrBind.SetMessage("token id is required"), nil)
 		return
 	}
 
@@ -64,30 +63,59 @@ func (tc *TokenController) Delete(c *gin.Context) {
 	log.C(c).Infof("delete token end")
 }
 
-func (tc *TokenController) Update(c *gin.Context) {
-	log.C(c).Infof("update token begin")
+func (tc *TokenController) Put(c *gin.Context) {
+	log.C(c).Infof("put token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
 		log.C(c).Errorf("token id is empty")
-		core.WriteResponse(c, errors.New("token id is required"), nil)
+		core.WriteResponse(c, errmsg.ErrBind.SetMessage("token id is required"), nil)
 		return
 	}
 
-	var r v1.UpdateTokenReq
+	var r v1.PutTokenReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Infof("update token request parse error: %s", err.Error())
+		log.C(c).Infof("put token request parse error: %s", err.Error())
+		core.WriteResponse(c, errmsg.ErrBind.SetMessage(err.Error()), nil)
+		return
+	}
+
+	resp, err := tc.b.Token().Put(c, tokenId, &r)
+	if err != nil {
+		log.C(c).Errorf("put token error: %s", err.Error())
 		core.WriteResponse(c, err, nil)
 		return
 	}
 
-	if err := tc.b.Token().Update(c, tokenId, &r); err != nil {
-		log.C(c).Errorf("update token error: %s", err.Error())
+	core.WriteResponse(c, nil, resp)
+	log.C(c).Infof("put token end")
+}
+
+func (tc *TokenController) Patch(c *gin.Context) {
+	log.C(c).Infof("patch token begin")
+	tokenId := c.Param(common.ParamUriTokenId)
+	if tokenId == "" {
+		log.C(c).Errorf("token id is empty")
+		core.WriteResponse(c, errmsg.ErrBind.SetMessage("token id is required"), nil)
+
+		return
+	}
+
+	var r v1.PatchTokenReq
+	if err := c.ShouldBind(&r); err != nil {
+		log.C(c).Infof("patch token request parse error: %s", err.Error())
+		core.WriteResponse(c, errmsg.ErrBind.SetMessage(err.Error()), nil)
+		return
+	}
+
+	resp, err := tc.b.Token().Patch(c, tokenId, &r)
+	if err != nil {
+		log.C(c).Errorf("patch token error: %s", err.Error())
 		core.WriteResponse(c, err, nil)
 		return
 	}
 
-	core.WriteResponse(c, nil, nil)
-	log.C(c).Infof("update token end")
+	core.WriteResponse(c, nil, resp)
+	log.C(c).Infof("patch token end")
 }
 
 func (tc *TokenController) List(c *gin.Context) {
@@ -96,7 +124,7 @@ func (tc *TokenController) List(c *gin.Context) {
 	var r v1.ListTokenReq
 	if err := c.ShouldBind(&r); err != nil {
 		log.C(c).Errorf("list token request parse error: %s", err.Error())
-		core.WriteResponse(c, err, nil)
+		core.WriteResponse(c, errmsg.ErrBind.SetMessage(err.Error()), nil)
 		return
 	}
 
@@ -116,7 +144,8 @@ func (tc *TokenController) Get(c *gin.Context) {
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
 		log.C(c).Errorf("token id is empty")
-		core.WriteResponse(c, errors.New("token id is required"), nil)
+		core.WriteResponse(c, errmsg.ErrBind.SetMessage("token id is required"), nil)
+
 		return
 	}
 

@@ -12,7 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"migadu-bridge/internal/pkg/config"
 	"migadu-bridge/internal/pkg/log"
@@ -126,10 +125,10 @@ func run() error {
 // startInsecureServer 创建并运行 HTTP 服务器.
 func startInsecureServer(addr string, g *gin.Engine) *http.Server {
 	// 创建 HTTP Server 实例
-	httpsrv := &http.Server{Addr: viper.GetString("addr"), Handler: g}
+	httpsrv := &http.Server{Addr: addr, Handler: g}
 	// 运行 HTTP 服务器。在 goroutine 中启动服务器，它不会阻止下面的正常关闭处理流程
 	// 打印一条日志，用来提示 HTTP 服务已经起来，方便排障
-	log.Infow("Start to listening the incoming requests on http address", "addr", viper.GetString("addr"))
+	log.WithField("addr", addr).Infow("Start to listening the incoming requests on http address")
 	go func() {
 		if err := httpsrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.WithError(err).Fatal()
