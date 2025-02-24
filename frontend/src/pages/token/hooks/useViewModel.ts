@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react'
-import { SettingTypes } from '../../../components/custome-table'
+import { ConfigTypes } from '../../../components/custome-table'
 import { formatDateTime } from '../../../utils/day'
 import { useModel } from './useModel'
 
-const tableSetting: SettingTypes[] = [
+const tableConfig: ConfigTypes[] = [
   {
     field: 'id',
     headName: 'ID',
@@ -59,7 +59,7 @@ export const useViewModel = () => {
   }, [])
 
   return {
-    setting: tableSetting,
+    config: tableConfig,
     data: data?.list,
     pageData: {
       page: curPage,
