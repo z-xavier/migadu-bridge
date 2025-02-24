@@ -1,4 +1,4 @@
-name: Publish Docker Image Dev
+name: CI Dev
 
 on:
   workflow_dispatch:
@@ -25,8 +25,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: gitea.zxavier.com
-          username: ${{ secrets.GITEA_USERNAME }}
-          password: ${{ secrets.GITEA_PASSWORD }}
+          username: ${{ secrets.DOCKERGITEA_USERNAME }}
+          password: ${{ secrets.DOCKERGITEA_PASSWORD }}
       -
         name: Build and push
         uses: docker/build-push-action@v5

@@ -1,8 +1,8 @@
-name: Deploy To Server Dev
+name: CD Dev
 
 on:
   workflow_run:
-    workflows: ["Publish Docker Image Dev"]
+    workflows: ["CI Dev"]
     types:
       - completed
 
