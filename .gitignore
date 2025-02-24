@@ -11,6 +11,7 @@
 *.dll
 *.so
 *.dylib
+migadu-bridge
 
 # Test binary, built with `go test -c`
 *.test
@@ -165,6 +166,7 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,vim,visualstudiocode,linux,windows,goland+all,go,nextjs
 
+data
 Dockerfile
 
 sqlite.db
