@@ -9,8 +9,14 @@ import {
   TableRow,
 } from '@mui/material'
 
+export type SettingTypes = {
+  field: string
+  headName: string
+  render?: (val?: string | number) => React.ReactNode
+}
+
 interface CustomTableProps<H extends Record<string, string>> {
-  head?: H
+  setting?: SettingTypes[]
   data?: H[]
   pageData?: {
     page: number
@@ -22,25 +28,27 @@ interface CustomTableProps<H extends Record<string, string>> {
 export default function CustomTable<H extends Record<string, string>>(
   props: Readonly<CustomTableProps<H>>
 ) {
-  const { head, data, pageData, onPageChange } = props
-
-  const keys = head ? Object.keys(head) : []
+  const { setting, data, pageData, onPageChange } = props
 
   return (
     <TableContainer>
       <Table>
         <TableHead>
           <TableRow>
-            {keys?.map((key) => (
-              <TableCell key={key}>{head?.[key]}</TableCell>
+            {setting?.map((val) => (
+              <TableCell key={`${val.field}-head`}>{val?.headName}</TableCell>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.map((val, index) => (
-            <TableRow key={val?.id ?? index} hover>
-              {keys?.map((key, keyIdx) => (
-                <TableCell key={index + ' ' + keyIdx}>{val?.[key]}</TableCell>
+          {data?.map((item, itemIdx) => (
+            <TableRow key={item?.id ?? itemIdx} hover>
+              {setting?.map((val, idx) => (
+                <TableCell key={`${val.field}-head-${idx}`}>
+                  {val.render
+                    ? val.render(item?.[val?.field])
+                    : item?.[val?.field]}
+                </TableCell>
               ))}
             </TableRow>
           ))}

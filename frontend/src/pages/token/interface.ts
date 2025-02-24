@@ -1,10 +1,18 @@
 export interface TokenListItem {
-  id?: string
-  targetEmail?: string
-  mockProvider?: string
-  description?: string
-  token?: string
-  expiryTime?: number
-  lastCallTime?: number
-  status?: number // 1: 开启 2: 暂停使用
+  createdAt: number
+  description: string
+  expiryAt: number
+  id: string
+  lastCalledAt: number
+  mockProvider: string
+  status: number
+  targetEmail: string
+  token: string
+  updatedAt: number
+}
+
+export interface TokenListResponse {
+  list: TokenListItem[]
+  page: number
+  pageSize: number
 }

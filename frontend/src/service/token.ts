@@ -1,2 +1,3 @@
-export const tokenListUrl =
-  'https://run.mocky.io/v3/71978153-25e9-4ee6-a3e3-f008b6abd82e'
+const BASE_URL = 'http://127.0.0.1:4523/m1/5903528-5590418-default'
+
+export const tokenListUrl = `${BASE_URL}/api/v1/tokens`
