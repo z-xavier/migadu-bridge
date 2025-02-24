@@ -3,12 +3,16 @@
 all: build
 
 # build 只包括后端
-build:
-	go build -v .
+build: clean
+	go mod tidy && \
+	go vet ./... && \
+	go build -v ./
 
 # build 包括前端
-build-all:
-	go build -v ./...
+build-all: clean
+	go mod tidy && \
+	go vet ./... && \
+	go build -v -ldflags '-s -w' ./
 
 build-docker:
 	cp docker/Dockerfile ./Dockerfile
@@ -22,7 +26,6 @@ tool:
 	gofmt -l .
 
 clean:
-	rm -rf frontend/public
 	rm -rf migadu-bridge
 
 help:

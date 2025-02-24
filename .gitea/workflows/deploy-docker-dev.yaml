@@ -1,0 +1,27 @@
+name: Deploy To Server Dev
+
+on:
+  workflow_run:
+    workflows: ["Publish Docker Image Dev"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to server
+        run: |
+          ssh user@server "
+            docker pull gitea.zxavier.com/xavier/migadu-bridge:dev && \
+            docker stop migadu-bridge && \
+            docker rm migadu-bridge && \
+            docker run -d --name migadu-bridge \
+                        --restart unless-stopped \
+                        --port 8080:8080 \
+                        --port 8081:8081 \
+                        --volumes /mnt/user/appdata/migadu-bridge/dev/data:/data \
+                        --volumes /mnt/user/appdata/migadu-bridge/dev/config:/config \
+                  gitea.zxavier.com/xavier/migadu-bridge:dev
+          "

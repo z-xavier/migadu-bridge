@@ -21,6 +21,7 @@ func RequestId() gin.HandlerFunc {
 		c.Set(common.XRequestIDKey, requestID)
 
 		// 将 RequestID 保存在 HTTP 返回头中，Header 的键为 `X-Request-ID`
+		c.Request.Header.Set(common.XRequestIDKey, requestID)
 		c.Writer.Header().Set(common.XRequestIDKey, requestID)
 		c.Next()
 	}

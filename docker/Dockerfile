@@ -16,9 +16,11 @@ COPY . ${GOPATH}/src/git.zxavier.com/xavier/migadu-bridge
 WORKDIR ${GOPATH}/src/git.zxavier.com/xavier/migadu-bridge
 
 # Begin env-to-ini build
-RUN go mod tidy && \
-    go vet ./... && \
-    go build -v .
+ENV CGO_ENABLED=0
+
+#RUN go mod tidy && \
+RUN go vet ./... && \
+    go build -v -ldflags '-s -w' ./
 
 FROM docker.io/library/alpine:3.21
 ARG APK_REPO
