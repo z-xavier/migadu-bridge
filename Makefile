@@ -15,8 +15,8 @@ lint:
 	golint ./...
 
 clean:
-	rm -rf go-gin-example
-	go clean -i .
+	rm -rf frontend/public
+	rm -rf migadu-bridge
 
 help:
 	@echo "make: compile packages and dependencies"
