@@ -23,6 +23,12 @@ func (err *Errmsg) SetMessage(format string, args ...interface{}) *Errmsg {
 	return err
 }
 
+// WithCause 设置 Errno 类型错误中的 Message 字段.
+func (err *Errmsg) WithCause(cause error) *Errmsg {
+	err.Message = cause.Error()
+	return err
+}
+
 // Decode 尝试从 err 中解析出业务错误码和错误信息.
 func Decode(err error) (int, string, string) {
 	if err == nil {

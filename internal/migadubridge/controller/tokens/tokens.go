@@ -28,7 +28,7 @@ func (tc *TokenController) Create(c *gin.Context) {
 	var r v1.CreateTokenReq
 	if err := c.ShouldBind(&r); err != nil {
 		log.C(c).Errorf("create token request parse error: %s", err.Error())
-		core.WriteResponse(c, errmsg.ErrBind.SetMessage(err.Error()), nil)
+		core.WriteResponse(c, errmsg.ErrBind.WithCause(err), nil)
 		return
 	}
 
@@ -75,7 +75,7 @@ func (tc *TokenController) Put(c *gin.Context) {
 	var r v1.PutTokenReq
 	if err := c.ShouldBind(&r); err != nil {
 		log.C(c).Infof("put token request parse error: %s", err.Error())
-		core.WriteResponse(c, errmsg.ErrBind.SetMessage(err.Error()), nil)
+		core.WriteResponse(c, errmsg.ErrBind.WithCause(err), nil)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (tc *TokenController) Patch(c *gin.Context) {
 	var r v1.PatchTokenReq
 	if err := c.ShouldBind(&r); err != nil {
 		log.C(c).Infof("patch token request parse error: %s", err.Error())
-		core.WriteResponse(c, errmsg.ErrBind.SetMessage(err.Error()), nil)
+		core.WriteResponse(c, errmsg.ErrBind.WithCause(err), nil)
 		return
 	}
 
@@ -124,7 +124,7 @@ func (tc *TokenController) List(c *gin.Context) {
 	var r v1.ListTokenReq
 	if err := c.ShouldBind(&r); err != nil {
 		log.C(c).Errorf("list token request parse error: %s", err.Error())
-		core.WriteResponse(c, errmsg.ErrBind.SetMessage(err.Error()), nil)
+		core.WriteResponse(c, errmsg.ErrBind.WithCause(err), nil)
 		return
 	}
 

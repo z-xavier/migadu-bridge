@@ -28,7 +28,7 @@ func (cc *CallLogsController) List(c *gin.Context) {
 	var r v1.ListCallLogReq
 	if err := c.ShouldBind(&r); err != nil {
 		log.C(c).Errorf("list call logs request parse error: %s", err.Error())
-		core.WriteResponse(c, errmsg.ErrBind.SetMessage(err.Error()), nil)
+		core.WriteResponse(c, errmsg.ErrBind.WithCause(err), nil)
 		return
 	}
 
