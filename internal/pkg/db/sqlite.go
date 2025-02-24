@@ -3,9 +3,11 @@ package db
 import (
 	"path"
 
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"migadu-bridge/internal/pkg/log"
 )
 
 // SqliteOptions 定义 Sqlite 数据库的选项.
@@ -31,6 +33,8 @@ func NewSqlite(opts *SqliteOptions) (*gorm.DB, error) {
 	if dsn == "" {
 		dsn = "sqlite.db"
 	}
+
+	log.WithField("sqlite", dsn).Infow("Open sqlite database")
 
 	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
 		Logger:                                   logger.Default.LogMode(logLevel),

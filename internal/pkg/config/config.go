@@ -2,6 +2,7 @@ package config
 
 import (
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 
@@ -11,6 +12,7 @@ import (
 type Config struct {
 	ServerConf *ServerConf `json:"server" mapstructure:"server"`
 	LogConf    *LogConf    `json:"log" mapstructure:"log"`
+	DB         *DBConf     `json:"db" mapstructure:"db"`
 	MigaduConf *MigaduConf `json:"migadu" mapstructure:"migadu"`
 }
 
@@ -26,6 +28,20 @@ type LogConf struct {
 	Level             string   `json:"level" mapstructure:"level"`
 	Format            string   `json:"format" mapstructure:"format"`
 	OutputPaths       []string `json:"output-paths" mapstructure:"output-paths"`
+}
+
+type DBConf struct {
+	Driver                string
+	Path                  string
+	WAL                   bool
+	LogLevel              int32
+	Host                  string
+	Username              string
+	Password              string
+	Database              string
+	MaxIdleConnections    int64
+	MaxOpenConnections    int64
+	MaxConnectionLifeTime time.Duration
 }
 
 type MigaduConf struct {
@@ -47,7 +63,7 @@ func InitConfig(cfgFile string) error {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// 将用 `$HOME/<recommendedHomeDir>` 目录加入到配置文件的搜索路径中
-		viper.AddConfigPath("/etc/migadu-provider/")
+		viper.AddConfigPath("/etc/migadu-bridge/")
 		viper.AddConfigPath("/config")
 		// 把当前目录加入到配置文件的搜索路径中
 		viper.AddConfigPath("./conf/")

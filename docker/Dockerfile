@@ -15,12 +15,10 @@ RUN apk --no-cache add \
 COPY . ${GOPATH}/src/git.zxavier.com/xavier/migadu-bridge
 WORKDIR ${GOPATH}/src/git.zxavier.com/xavier/migadu-bridge
 
-# Checkout version if set
-#RUN if [ -n "${MB_VERSION}" ]; then git checkout "${MB_VERSION}"; fi \
-# && make clean-all build
-
 # Begin env-to-ini build
-RUN go build .
+RUN go mod tidy && \
+    go vet ./... && \
+    go build -v .
 
 FROM docker.io/library/alpine:3.21
 ARG APK_REPO
@@ -28,8 +26,7 @@ RUN if [ -n "${APK_REPO}" ]; then sed -i "s/dl-cdn.alpinelinux.org/${APK_REPO}/g
 
 LABEL maintainer="me@zxavier.com"
 
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 8080 8081
 
 # Build deps
 RUN apk --no-cache add \
@@ -39,7 +36,7 @@ RUN apk --no-cache add \
 VOLUME ["/data"]
 
 ENTRYPOINT ["./migadu-bridge/migadu-bridge"]
-CMD ["-c", "/etc/migadu-bridge/conf.yaml"]
+CMD ["-c", "/config/conf.yaml"]
 
-COPY --from=build-env /tmp/local /
+COPY --from=build-env /go/src/git.zxavier.com/xavier/migadu-bridge/conf /config
 COPY --from=build-env /go/src/git.zxavier.com/xavier/migadu-bridge ./migadu-bridge

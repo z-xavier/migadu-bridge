@@ -9,6 +9,7 @@ db:
   driver: "sqlite"
   wal: true
   log-level: 4 # GORM log level, 1: silent, 2:error, 3:warn, 4:info
+  path: "/data"
 # MySQL 数据相关
 #  driver: "mysql"
 #  host: 127.0.0.1  # MySQL 机器 IP 和端口，默认 127.0.0.1:3306

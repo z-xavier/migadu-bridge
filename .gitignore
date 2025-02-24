@@ -164,3 +164,9 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,vim,visualstudiocode,linux,windows,goland+all,go,nextjs
+
+Dockerfile
+
+sqlite.db
+sqlite.db-shm
+sqlite.db-wal
