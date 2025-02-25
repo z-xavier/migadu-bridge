@@ -7,7 +7,7 @@ export default defineConfig({
   initialState: {},
   request: {},
   layout: {
-    title: '@umijs/max',
+    title: 'XAVIER',
   },
   routes: [
     {
@@ -29,7 +29,11 @@ export default defineConfig({
       path: '/table',
       component: './Table',
     },
+    {
+      name: 'Token',
+      path: '/token',
+      component: './Token',
+    },
   ],
   npmClient: 'npm',
 });
-
