@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - dev
-    paths:
-      - '!frontend/**'
+    paths-ignore:
+      - 'frontend/**'
 
 jobs:
   build-and-push:
