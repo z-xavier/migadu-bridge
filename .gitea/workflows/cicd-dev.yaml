@@ -53,8 +53,8 @@ jobs:
           port: ${{ secrets.SSH_DEV_PORT }}
           script: |
             docker pull git.zxavier.com/xavier/migadu-bridge:dev && \
-            docker stop migadu-bridge && \
-            docker rm migadu-bridge && \
+            docker stop migadu-bridge || true && \
+            docker rm migadu-bridge || true && \
             docker run -d --name migadu-bridge \
               --restart unless-stopped \
               --port 8080:8080 \
