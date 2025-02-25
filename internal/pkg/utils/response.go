@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"io"
 	"net/http"
 	"sync"
 
@@ -37,7 +36,7 @@ func UnmarshalFromResponse[T any](r *http.Response) (*T, error) {
 	buf := NewRespBuf()
 	defer ReleaseRespBuf(buf)
 
-	if _, err := io.Copy(buf, r.Body); err != nil {
+	if _, err := buf.ReadFrom(r.Body); err != nil {
 		return nil, errors.WithMessagef(err, "failed to copy body")
 	}
 
