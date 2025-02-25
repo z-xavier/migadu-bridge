@@ -12,16 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to server
-        run: |
-          ssh user@server "
-            docker pull gitea.zxavier.com/xavier/migadu-bridge:dev && \
-            docker stop migadu-bridge && \
-            docker rm migadu-bridge && \
-            docker run -d --name migadu-bridge \
-                        --restart unless-stopped \
-                        --port 8080:8080 \
-                        --port 8081:8081 \
-                        --volumes /mnt/user/appdata/migadu-bridge/dev/data:/data \
-                        --volumes /mnt/user/appdata/migadu-bridge/dev/config:/config \
-                  gitea.zxavier.com/xavier/migadu-bridge:dev
-          "
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ secrets.SSH_DEV_HOST }}
+          username: ${{ secrets.SSH_DEV_USERNAME }}
+          password: ${{ secrets.SSH_DEV_PASSWORD }}
+          port: ${{ secrets.SSH_DEV_PORT }}
+          script: |
+              docker pull git.zxavier.com/xavier/migadu-bridge:dev && \
+              docker stop migadu-bridge && \
+              docker rm migadu-bridge && \
+              docker run -d --name migadu-bridge \
+                --restart unless-stopped \
+                --port 8080:8080 \
+                --port 8081:8081 \
+                --volumes /mnt/user/appdata/migadu-bridge/dev/data:/data \
+                --volumes /mnt/user/appdata/migadu-bridge/dev/config:/config \
+                gitea.zxavier.com/xavier/migadu-bridge:dev

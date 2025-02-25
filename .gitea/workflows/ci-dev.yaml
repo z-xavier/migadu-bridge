@@ -24,7 +24,7 @@ jobs:
         name: Log in to Gitea Container Registry
         uses: docker/login-action@v3
         with:
-          registry: gitea.zxavier.com
+          registry: ${{ vars.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKERGITEA_USERNAME }}
           password: ${{ secrets.DOCKERGITEA_PASSWORD }}
       -
@@ -35,4 +35,4 @@ jobs:
           file: ./docker/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: gitea.zxavier.com/xavier/migadu-bridge:dev
+          tags: ${{ vars.DOCKER_REGISTRY }}/xavier/migadu-bridge:dev
