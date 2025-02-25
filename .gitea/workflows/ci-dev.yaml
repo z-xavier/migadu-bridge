@@ -36,3 +36,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ vars.DOCKER_REGISTRY }}/xavier/migadu-bridge:dev
+          build-args: |
+            APK_REPO=${{ vars.APK_REPO }}
+            GOPROXY=${{ vars.GOPROXY }}
