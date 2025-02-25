@@ -114,14 +114,6 @@ func (t *tokenBiz) Patch(ctx *gin.Context, id string, req *v1.PatchTokenReq) (*v
 }
 
 func (t *tokenBiz) List(ctx *gin.Context, req *v1.ListTokenReq) (*v1.ListTokenResp, error) {
-	if req.Page == 0 {
-		req.Page = 1
-	}
-
-	if req.PageSize == 0 {
-		req.PageSize = 10
-	}
-
 	if len(req.OrderBy) == 0 {
 		req.OrderBy = []string{"updated_at:desc"}
 	}

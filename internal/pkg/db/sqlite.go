@@ -12,9 +12,9 @@ import (
 
 // SqliteOptions 定义 Sqlite 数据库的选项.
 type SqliteOptions struct {
-	Path     string
-	WAL      bool
-	LogLevel int
+	Path     string `json:"path"`
+	WAL      bool   `json:"wal"`
+	LogLevel int32  `json:"log-level"`
 }
 
 // DSN 从 SqliteOptions 返回 DSN.

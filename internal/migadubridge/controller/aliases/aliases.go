@@ -1,4 +1,4 @@
-package Aliaseses
+package aliases
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,7 +6,9 @@ import (
 	"migadu-bridge/internal/migadubridge/biz"
 	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/core"
+	"migadu-bridge/internal/pkg/errmsg"
 	"migadu-bridge/internal/pkg/log"
+	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
 // AliasesController 定义了 controller 层需要实现的方法.
@@ -23,14 +25,14 @@ func New(ds store.IStore) *AliasesController {
 func (ac *AliasesController) List(c *gin.Context) {
 	log.C(c).Infof("list aliasese begin")
 
-	//var r v1.ListAliasesReq
-	//if err := c.ShouldBind(&r); err != nil {
-	//	log.C(c).Errorf("list call logs request parse error: %s", err.Error())
-	//	core.WriteResponse(c, errmsg.ErrBind.WithCause(err), nil)
-	//	return
-	//}
+	var r v1.ListAliasReq
+	if err := c.ShouldBind(&r); err != nil {
+		log.C(c).Errorf("list aliasese request parse error: %s", err.Error())
+		core.WriteResponse(c, errmsg.ErrBind.WithCause(err), nil)
+		return
+	}
 
-	resp, err := ac.b.Alias().List(c)
+	resp, err := ac.b.Alias().List(c, &r)
 	if err != nil {
 		log.C(c).Errorf("list aliasese error: %s", err.Error())
 		core.WriteResponse(c, err, nil)

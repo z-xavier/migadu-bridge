@@ -31,17 +31,17 @@ type LogConf struct {
 }
 
 type DBConf struct {
-	Driver                string
-	Path                  string
-	WAL                   bool
-	LogLevel              int32
-	Host                  string
-	Username              string
-	Password              string
-	Database              string
-	MaxIdleConnections    int64
-	MaxOpenConnections    int64
-	MaxConnectionLifeTime time.Duration
+	Driver                string        `json:"driver" mapstructure:"driver"`
+	Path                  string        `json:"path" mapstructure:"path"`
+	WAL                   bool          `json:"wal" mapstructure:"wal"`
+	LogLevel              int32         `json:"log-level" mapstructure:"log-level"`
+	Host                  string        `json:"host" mapstructure:"host"`
+	Username              string        `json:"username" mapstructure:"username"`
+	Password              string        `json:"password" mapstructure:"password"`
+	Database              string        `json:"database" mapstructure:"database"`
+	MaxIdleConnections    int64         `json:"max-idle-connections" mapstructure:"max-idle-connections"`
+	MaxOpenConnections    int64         `json:"max-open-connections" mapstructure:"max-open-connections"`
+	MaxConnectionLifeTime time.Duration `json:"max-connection-life-time" mapstructure:"max-connection-life-time"`
 }
 
 type MigaduConf struct {

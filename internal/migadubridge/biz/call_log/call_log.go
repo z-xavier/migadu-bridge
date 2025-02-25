@@ -28,14 +28,6 @@ func New(ds store.IStore) CallLogBiz {
 }
 
 func (c *callLogBiz) List(context *gin.Context, req *v1.ListCallLogReq) (*v1.ListCallLogResp, error) {
-	if req.Page == 0 {
-		req.Page = 1
-	}
-
-	if req.PageSize == 0 {
-		req.PageSize = 10
-	}
-
 	if len(req.OrderBy) == 0 {
 		req.OrderBy = []string{"updated_at:desc"}
 	}
