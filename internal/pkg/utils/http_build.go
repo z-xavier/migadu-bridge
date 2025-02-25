@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/bytedance/sonic"
@@ -16,16 +15,6 @@ import (
 
 	"migadu-bridge/internal/pkg/log"
 )
-
-var httpReqBuilderPool = sync.Pool{
-	New: func() any {
-		return new(HTTPReqBuilder)
-	}}
-
-var httpClientPool = sync.Pool{
-	New: func() any {
-		return new(http.Client)
-	}}
 
 type ContentType string
 
@@ -49,12 +38,7 @@ type HTTPReqBuilder struct {
 
 // NewHTTPReqBuilder returns a new HTTPReqBuilder
 func NewHTTPReqBuilder() *HTTPReqBuilder {
-	return httpReqBuilderPool.Get().(*HTTPReqBuilder)
-}
-
-func ReleaseHTTPReqBuilder(b *HTTPReqBuilder) {
-	b.reset()
-	httpReqBuilderPool.Put(b)
+	return &HTTPReqBuilder{}
 }
 
 func (b *HTTPReqBuilder) reset() {
@@ -195,13 +179,11 @@ func (b *HTTPReqBuilder) build() (*http.Request, error) {
 
 // Build builds a http.Request，调用后该 HTTPReqBuilder 不应再被使用
 func (b *HTTPReqBuilder) Build() (*http.Request, error) {
-	defer ReleaseHTTPReqBuilder(b)
 	return b.build()
 }
 
 // Do builds and sends a http.Request，调用后该 HTTPReqBuilder 不应再被使用
 func (b *HTTPReqBuilder) Do() (resp *http.Response, err error) {
-	defer ReleaseHTTPReqBuilder(b)
 	req, err := b.build()
 	if err != nil {
 		return nil, err
@@ -218,18 +200,14 @@ func (b *HTTPReqBuilder) Do() (resp *http.Response, err error) {
 
 // DoWithTimeout builds and sends a http.Request with timeout，调用后该 HTTPReqBuilder 不应再被使用
 func (b *HTTPReqBuilder) DoWithTimeout(timeout time.Duration) (resp *http.Response, err error) {
-	defer ReleaseHTTPReqBuilder(b)
 	req, err := b.build()
 	if err != nil {
 		return nil, err
 	}
 
-	client := httpClientPool.Get().(*http.Client)
-	client.Timeout = timeout
-	defer func() {
-		client.Timeout = 0
-		httpClientPool.Put(client)
-	}()
+	client := &http.Client{
+		Timeout: timeout,
+	}
 
 	//beginTime := time.Now()
 	//defer func() {
