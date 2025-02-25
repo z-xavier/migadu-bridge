@@ -3,7 +3,8 @@ name: CI Dev
 on:
   workflow_dispatch:
   push:
-    branches: [ dev ]
+    branches:
+      - dev
     paths:
       - '!frontend/**'
 
