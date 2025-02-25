@@ -61,4 +61,4 @@ jobs:
               -p ${{ vars.DOCKER_PORT_DEV_2 }}:8081 \
               -v ${{ vars.DOCKER_V_DEV }}/data:/data \
               -v ${{ vars.DOCKER_V_DEV }}/config:/config \
-              gitea.zxavier.com/xavier/migadu-bridge:dev
+              git.zxavier.com/xavier/migadu-bridge:dev
