@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"migadu-bridge/internal/migadubridge/controller/aliases"
+	"migadu-bridge/internal/migadubridge/controller/bridges"
 	"migadu-bridge/internal/migadubridge/controller/call_logs"
 	"migadu-bridge/internal/migadubridge/controller/tokens"
 	"migadu-bridge/internal/migadubridge/store"
@@ -62,9 +63,13 @@ func installRouters(g *gin.Engine) error {
 	// V1 版本先直接根据 path 区分路由
 	// V2 版本中 如果相同 path 根据 Token 获取对应的控制器
 
-	//addyAliases := g.Group("/api/v1/aliases").POST("")
-	//
-	//simplelogin := g.Group("/api/alias/random/new").POST("")
+	b := bridges.New(store.S)
+
+	// addyAliases
+	g.Group("/api/v1/aliases").POST("", b.AddyAliases)
+
+	// simplelogin
+	g.Group("/api/alias/random/new").POST("", b.Simplelogin)
 
 	return nil
 }
