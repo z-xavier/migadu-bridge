@@ -53,12 +53,12 @@ jobs:
           port: ${{ secrets.SSH_DEV_PORT }}
           script: |
             docker pull git.zxavier.com/xavier/migadu-bridge:dev && \
-            docker stop migadu-bridge || true && \
-            docker rm migadu-bridge || true && \
-            docker run -d --name migadu-bridge \
+            docker stop ${{ vars.DOCKER_NAME_DEV }} || true && \
+            docker rm ${{ vars.DOCKER_NAME_DEV }} || true && \
+            docker run -d --name ${{ vars.DOCKER_NAME_DEV }} \
               --restart unless-stopped \
-              --port 8080:8080 \
-              --port 8081:8081 \
-              --volumes /mnt/user/appdata/migadu-bridge/dev/data:/data \
-              --volumes /mnt/user/appdata/migadu-bridge/dev/config:/config \
+              -p ${{ vars.DOCKER_PORT_DEV_1 }}:8080 \
+              -p ${{ vars.DOCKER_PORT_DEV_2 }}:8081 \
+              -v ${{ vars.DOCKER_V_DEV }}/data:/data \
+              -v ${{ vars.DOCKER_V_DEV }}/config:/config \
               gitea.zxavier.com/xavier/migadu-bridge:dev
