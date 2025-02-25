@@ -35,10 +35,10 @@ RUN apk --no-cache add \
         ca-certificates \
         && rm -rf /var/cache/apk/*
 
-VOLUME ["/data"]
+VOLUME ["/data", "/config"]
+
+COPY --from=build-env /go/src/git.zxavier.com/xavier/migadu-bridge/conf /config
+COPY --from=build-env /go/src/git.zxavier.com/xavier/migadu-bridge/migadu-bridge ./migadu-bridge
 
 ENTRYPOINT ["./migadu-bridge/migadu-bridge"]
 CMD ["-c", "/config/conf.yaml"]
-
-COPY --from=build-env /go/src/git.zxavier.com/xavier/migadu-bridge/conf /config
-COPY --from=build-env /go/src/git.zxavier.com/xavier/migadu-bridge ./migadu-bridge
