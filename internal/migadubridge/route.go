@@ -35,22 +35,22 @@ func installInteriorWebRouters(g *gin.Engine) error {
 	{
 		tokenV1 := v1.Group("/tokens")
 		{
-			tokenV1.POST("", tc.Create)
-			tokenV1.DELETE(":tokenId", tc.Delete)
-			tokenV1.PUT(":tokenId", tc.Put)
-			tokenV1.PATCH(":tokenId", tc.Patch)
-			tokenV1.GET("", tc.List)
-			tokenV1.GET(":tokenId", tc.Get)
+			tokenV1.POST("", core.HandleResult(tc.Create))
+			tokenV1.DELETE(":tokenId", core.HandleResult(tc.Delete))
+			tokenV1.PUT(":tokenId", core.HandleResult(tc.Put))
+			tokenV1.PATCH(":tokenId", core.HandleResult(tc.Patch))
+			tokenV1.GET("", core.HandleResult(tc.List))
+			tokenV1.GET(":tokenId", core.HandleResult(tc.Get))
 		}
 
 		callLogV1 := v1.Group("/calllogs")
 		{
-			callLogV1.GET("", cc.List)
+			callLogV1.GET("", core.HandleResult(cc.List))
 		}
 
 		aliasV1 := v1.Group("/aliases")
 		{
-			aliasV1.GET("", ac.List)
+			aliasV1.GET("", core.HandleResult(ac.List))
 		}
 	}
 
