@@ -59,7 +59,6 @@ func installInteriorWebRouters(g *gin.Engine) error {
 
 // installRouters 安装 migaudu-provider 接口路由.
 func installRouters(g *gin.Engine) error {
-	// TODO
 	// V1 版本先直接根据 path 区分路由
 	// V2 版本中 如果相同 path 根据 Token 获取对应的控制器
 

@@ -6,11 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"migadu-bridge/internal/migadubridge/store"
-	"migadu-bridge/internal/pkg/config"
+	"migadu-bridge/internal/pkg/migadu"
 	"migadu-bridge/internal/pkg/model"
 	v1 "migadu-bridge/pkg/api/manage/v1"
-
-	migadugo "github.com/ZhangXavier/migadu-go"
 )
 
 type AliasBiz interface {
@@ -26,11 +24,7 @@ func New(ds store.IStore) AliasBiz {
 }
 
 func (a *aliasBiz) List(ctx *gin.Context, req *v1.ListAliasReq) (*v1.ListAliasResp, error) {
-	client, err := migadugo.New(
-		config.GetConfig().MigaduConf.Email,
-		config.GetConfig().MigaduConf.APIKey,
-		config.GetConfig().MigaduConf.Domain,
-	)
+	client, err := migadu.MigaduClient()
 	if err != nil {
 		return nil, err
 	}
