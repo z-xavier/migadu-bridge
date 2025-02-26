@@ -66,10 +66,10 @@ func installRouters(g *gin.Engine) error {
 	b := bridges.New(store.S)
 
 	// addyAliases
-	g.Group("/api/v1/aliases").POST("", b.AddyAliases)
+	g.Group("/api/v1/aliases").POST("", core.HandleResult(b.AddyAliases))
 
 	// simplelogin
-	g.Group("/api/alias/random/new").POST("", b.Simplelogin)
+	g.Group("/api/alias/random/new").POST("", core.HandleResult(b.Simplelogin))
 
 	return nil
 }

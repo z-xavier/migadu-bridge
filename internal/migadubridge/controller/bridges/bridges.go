@@ -5,7 +5,6 @@ import (
 
 	"migadu-bridge/internal/migadubridge/biz"
 	"migadu-bridge/internal/migadubridge/store"
-	"migadu-bridge/internal/pkg/core"
 	"migadu-bridge/internal/pkg/log"
 )
 
@@ -20,7 +19,7 @@ func New(ds store.IStore) *BridgesController {
 	}
 }
 
-func (bc *BridgesController) AddyAliases(c *gin.Context) {
+func (bc *BridgesController) AddyAliases(c *gin.Context) (any, error) {
 	log.C(c).Infof("AddyAliases begin")
 
 	//var r v1.ListAliasReq
@@ -37,11 +36,10 @@ func (bc *BridgesController) AddyAliases(c *gin.Context) {
 	//	return
 	//}
 
-	core.WriteResponse(c, nil, nil)
-	log.C(c).Infof("AddyAliases end")
+	return nil, nil
 }
 
-func (bc *BridgesController) Simplelogin(c *gin.Context) {
+func (bc *BridgesController) Simplelogin(c *gin.Context) (any, error) {
 	log.C(c).Infof("Simplelogin begin")
 
 	//var r v1.ListAliasReq
@@ -58,6 +56,5 @@ func (bc *BridgesController) Simplelogin(c *gin.Context) {
 	//	return
 	//}
 
-	core.WriteResponse(c, nil, nil)
-	log.C(c).Infof("Simplelogin end")
+	return nil, nil
 }
