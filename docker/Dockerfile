@@ -1,5 +1,10 @@
 # Build stage
-FROM docker.io/library/golang:1.24-alpine3.21 AS build-env
+
+# Javascript build stage
+
+# Golang build stage
+FROM docker.io/library/golang:1.24-alpine3.21 AS go-builder
+
 ARG APK_REPO
 RUN if [ -n "${APK_REPO}" ]; then sed -i "s/dl-cdn.alpinelinux.org/${APK_REPO}/g" /etc/apk/repositories; fi
 
@@ -23,6 +28,7 @@ RUN go vet ./... && \
     go build -v -ldflags '-s -w' ./
 
 FROM docker.io/library/alpine:3.21
+
 ARG APK_REPO
 RUN if [ -n "${APK_REPO}" ]; then sed -i "s/dl-cdn.alpinelinux.org/${APK_REPO}/g" /etc/apk/repositories; fi
 
@@ -37,8 +43,8 @@ RUN apk --no-cache add \
 
 VOLUME ["/data", "/config"]
 
-COPY --from=build-env /go/src/git.zxavier.com/xavier/migadu-bridge/conf /config
-COPY --from=build-env /go/src/git.zxavier.com/xavier/migadu-bridge/migadu-bridge ./migadu-bridge
+COPY --from=go-builder /go/src/git.zxavier.com/xavier/migadu-bridge/conf /config
+COPY --from=go-builder /go/src/git.zxavier.com/xavier/migadu-bridge/migadu-bridge ./migadu-bridge
 
 ENTRYPOINT ["./migadu-bridge/migadu-bridge"]
 CMD ["-c", "/config/conf.yaml"]
