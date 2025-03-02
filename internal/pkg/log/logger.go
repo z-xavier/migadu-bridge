@@ -45,6 +45,8 @@ type Logger interface {
 	Fatalf(format string, args ...any)
 }
 
+const defaultDepth int = 4
+
 type sLogger struct {
 	context context.Context
 	// depth slog 官方不支持调整 caller 的 skip，给出了下列的解决方案。
@@ -216,7 +218,7 @@ func NewLogger(opts *Options) *sLogger {
 	slog.SetDefault(s)
 
 	logger := &sLogger{
-		depth: 4,
+		depth: defaultDepth + 1,
 		s:     s,
 	}
 
@@ -224,10 +226,6 @@ func NewLogger(opts *Options) *sLogger {
 }
 
 func (l *sLogger) log(level slog.Level, msg string, keysAndValues ...any) {
-	if !l.s.Enabled(l.context, level) {
-		return
-	}
-
 	var pcs [1]uintptr
 	runtime.Callers(l.depth, pcs[:])
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
@@ -243,7 +241,7 @@ func (l *sLogger) log(level slog.Level, msg string, keysAndValues ...any) {
 func (l *sLogger) C(ctx context.Context) Logger {
 	return &sLogger{
 		context: ctx,
-		depth:   3,
+		depth:   defaultDepth,
 		s:       l.s,
 	}
 }
@@ -251,7 +249,7 @@ func (l *sLogger) C(ctx context.Context) Logger {
 func (l *sLogger) WithError(err error) Logger {
 	return &sLogger{
 		context: l.context,
-		depth:   3,
+		depth:   defaultDepth,
 		s:       l.s.With(ErrorFieldName, err),
 	}
 }
@@ -259,87 +257,106 @@ func (l *sLogger) WithError(err error) Logger {
 func (l *sLogger) WithField(key string, value any) Logger {
 	return &sLogger{
 		context: l.context,
-		depth:   3,
+		depth:   defaultDepth,
 		s:       l.s.With(key, value),
 	}
 }
 
+func (l *sLogger) Log(level slog.Level, a ...any) {
+	if !l.s.Enabled(l.context, level) {
+		return
+	}
+	l.log(level, fmt.Sprint(a...))
+}
+
+func (l *sLogger) Logw(level slog.Level, msg string, keysAndValues ...any) {
+	if !l.s.Enabled(l.context, level) {
+		return
+	}
+	l.log(level, msg, keysAndValues...)
+}
+
+func (l *sLogger) Logf(level slog.Level, format string, a ...any) {
+	if !l.s.Enabled(l.context, level) {
+		return
+	}
+	l.log(level, fmt.Sprintf(format, a...))
+}
+
 func (l *sLogger) Debug(a ...any) {
-	l.log(slog.LevelDebug, fmt.Sprint(a...))
+	l.Log(slog.LevelDebug, a...)
 }
 
 func (l *sLogger) Debugw(msg string, keysAndValues ...any) {
-	l.log(slog.LevelDebug, msg, keysAndValues...)
+	l.Logw(slog.LevelDebug, msg, keysAndValues...)
 }
 
-func (l *sLogger) Debugf(format string, args ...any) {
-	l.log(slog.LevelDebug, fmt.Sprintf(format, args...))
+func (l *sLogger) Debugf(format string, a ...any) {
+	l.Logf(slog.LevelDebug, format, a...)
 }
 
 func (l *sLogger) Info(a ...any) {
-	l.log(slog.LevelInfo, fmt.Sprint(a...))
+	l.Log(slog.LevelInfo, a...)
 }
 
 func (l *sLogger) Infow(msg string, keysAndValues ...any) {
-	l.log(slog.LevelInfo, msg, keysAndValues...)
+	l.Logw(slog.LevelInfo, msg, keysAndValues...)
 }
 
-func (l *sLogger) Infof(format string, args ...any) {
-	l.log(slog.LevelInfo, fmt.Sprintf(format, args...))
+func (l *sLogger) Infof(format string, a ...any) {
+	l.Logf(slog.LevelInfo, format, a...)
 }
 
 func (l *sLogger) Warn(a ...any) {
-	l.log(slog.LevelWarn, fmt.Sprint(a...))
+	l.Log(slog.LevelWarn, a...)
 }
 
 func (l *sLogger) Warnw(msg string, keysAndValues ...any) {
-	l.log(slog.LevelWarn, msg, keysAndValues...)
+	l.Logw(slog.LevelWarn, msg, keysAndValues...)
 }
 
-func (l *sLogger) Warnf(format string, args ...any) {
-	l.log(slog.LevelWarn, fmt.Sprintf(format, args...))
+func (l *sLogger) Warnf(format string, a ...any) {
+	l.Logf(slog.LevelWarn, format, a...)
 }
 
 func (l *sLogger) Error(a ...any) {
-	l.log(slog.LevelError, fmt.Sprint(a...))
+	l.Log(slog.LevelError, a...)
 }
 
 func (l *sLogger) Errorw(msg string, keysAndValues ...any) {
-	l.log(slog.LevelError, msg, keysAndValues...)
+	l.Logw(slog.LevelError, msg, keysAndValues...)
 }
 
-func (l *sLogger) Errorf(format string, args ...any) {
-	l.log(slog.LevelError, fmt.Sprintf(format, args...))
+func (l *sLogger) Errorf(format string, a ...any) {
+	l.Logf(slog.LevelError, format, a...)
 }
 
 func (l *sLogger) Panic(a ...any) {
-	msg := fmt.Sprint(a...)
-	l.log(slog.LevelError, msg)
-	panic(msg)
+	l.Log(slog.LevelError, a...)
+	panic(fmt.Sprint(a...))
 }
 
 func (l *sLogger) Panicw(msg string, keysAndValues ...any) {
-	l.log(slog.LevelError, msg, keysAndValues...)
+	l.Logw(slog.LevelError, msg, keysAndValues...)
 	panic(msg)
 }
 
 func (l *sLogger) Panicf(format string, a ...any) {
-	msg := fmt.Sprintf(format, a...)
-	l.log(slog.LevelError, msg)
-	panic(msg)
+	l.Logf(slog.LevelError, format, a...)
+	panic(fmt.Sprintf(format, a...))
 }
 
 func (l *sLogger) Fatal(a ...any) {
-	l.log(slog.LevelError, fmt.Sprint(a...))
+	l.Log(slog.LevelError, a...)
 	os.Exit(1)
 }
 
 func (l *sLogger) Fatalw(msg string, keysAndValues ...any) {
-	l.log(slog.LevelError, msg, keysAndValues...)
+	l.Logw(slog.LevelError, msg, keysAndValues...)
 	os.Exit(1)
 }
 
 func (l *sLogger) Fatalf(format string, a ...any) {
-	l.log(slog.LevelError, fmt.Sprintf(format, a...))
+	l.Logf(slog.LevelError, format, a...)
 	os.Exit(1)
 }

@@ -16,7 +16,7 @@ type TokenStore interface {
 	UpdateById(ctx context.Context, id string, updates map[string]any) error
 	GetById(ctx context.Context, id string) (*model.Token, error)
 	GetByToken(ctx context.Context, token string) (*model.Token, error) // TODO scanner token
-	ListId(ctx context.Context, cond map[string][]any) ([]int64, error)
+	ListByTargetEmail(ctx context.Context, targetEmailList []string) ([]*model.Token, error)
 	ListWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []*model.Token, error)
 }
 
@@ -60,20 +60,14 @@ func (t *tokenStore) GetByToken(ctx context.Context, token string) (*model.Token
 	panic("implement me")
 }
 
-func (t *tokenStore) ListId(ctx context.Context, cond map[string][]any) ([]int64, error) {
-	db := t.db.WithContext(ctx).Model(&model.Token{})
-
-	if cond != nil {
-		for k, v := range cond {
-			db = db.Where(k, v...)
-		}
-	}
-
-	var ids []int64
-	if err := db.Find(&ids).Error; err != nil {
+func (t *tokenStore) ListByTargetEmail(ctx context.Context, targetEmailList []string) ([]*model.Token, error) {
+	var tokens []*model.Token
+	if err := t.db.WithContext(ctx).
+		Where("`target_email` IN ?", targetEmailList).
+		Find(&tokens).Error; err != nil {
 		return nil, err
 	}
-	return ids, nil
+	return tokens, nil
 }
 
 func (t *tokenStore) ListWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []*model.Token, error) {

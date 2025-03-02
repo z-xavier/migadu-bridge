@@ -3,11 +3,7 @@ package provider
 import (
 	"context"
 	"errors"
-	"sync"
 
-	"github.com/ZhangXavier/migadu-go"
-
-	"migadu-bridge/internal/pkg/config"
 	"migadu-bridge/pkg/api/enum"
 )
 
@@ -26,10 +22,3 @@ func New(providerEnum enum.ProviderEnum) (ProviderBiz, error) {
 		return nil, errors.New("unknown provider")
 	}
 }
-
-var MigaduClient = sync.OnceValues(func() (*migadu.Client, error) {
-	return migadu.New(
-		config.GetConfig().MigaduConf.Email,
-		config.GetConfig().MigaduConf.APIKey,
-		config.GetConfig().MigaduConf.Domain)
-})

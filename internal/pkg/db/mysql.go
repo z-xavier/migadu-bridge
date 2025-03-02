@@ -11,14 +11,14 @@ import (
 
 // MySQLOptions 定义 MySQL 数据库的选项.
 type MySQLOptions struct {
-	Host                  string
-	Username              string
-	Password              string
-	Database              string
-	MaxIdleConnections    int
-	MaxOpenConnections    int
-	MaxConnectionLifeTime time.Duration
-	LogLevel              int
+	Host                  string        `json:"host"`
+	Username              string        `json:"username"`
+	Password              string        `json:"password"`
+	Database              string        `json:"database"`
+	MaxIdleConnections    int           `json:"max-idle-connections"`
+	MaxOpenConnections    int           `json:"max-open-connections"`
+	MaxConnectionLifeTime time.Duration `json:"max-connection-life-time"`
+	LogLevel              int           `json:"log-level"`
 }
 
 // DSN 从 MySQLOptions 返回 DSN.

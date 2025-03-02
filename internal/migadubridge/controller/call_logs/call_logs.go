@@ -5,7 +5,6 @@ import (
 
 	"migadu-bridge/internal/migadubridge/biz"
 	"migadu-bridge/internal/migadubridge/store"
-	"migadu-bridge/internal/pkg/core"
 	"migadu-bridge/internal/pkg/errmsg"
 	"migadu-bridge/internal/pkg/log"
 	v1 "migadu-bridge/pkg/api/manage/v1"
@@ -22,23 +21,14 @@ func New(ds store.IStore) *CallLogsController {
 	}
 }
 
-func (cc *CallLogsController) List(c *gin.Context) {
+func (cc *CallLogsController) List(c *gin.Context) (any, error) {
 	log.C(c).Infof("list call logs begin")
 
 	var r v1.ListCallLogReq
 	if err := c.ShouldBind(&r); err != nil {
 		log.C(c).Errorf("list call logs request parse error: %s", err.Error())
-		core.WriteResponse(c, errmsg.ErrBind.WithCause(err), nil)
-		return
+		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
-	resp, err := cc.b.CallLog().List(c, &r)
-	if err != nil {
-		log.C(c).Errorf("list call logs error: %s", err.Error())
-		core.WriteResponse(c, err, nil)
-		return
-	}
-
-	core.WriteResponse(c, nil, resp)
-	log.C(c).Infof("list call logs end")
+	return cc.b.CallLog().List(c, &r)
 }

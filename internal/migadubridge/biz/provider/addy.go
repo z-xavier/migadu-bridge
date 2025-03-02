@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"migadu-bridge/internal/pkg/log"
+	"migadu-bridge/internal/pkg/migadu"
 	"migadu-bridge/internal/pkg/rwords"
 )
 
@@ -15,7 +16,7 @@ func NewAddy() *Addy {
 
 func (ab *Addy) AliasRandomNew(ctx context.Context, domain, desc string) error {
 	log.C(ctx).Infow("adding new alias", "domain", domain, "description", desc)
-	client, err := MigaduClient()
+	client, err := migadu.MigaduClient()
 	if err != nil {
 		log.C(ctx).Infow("error creating client", "error", err)
 		return err

@@ -12,6 +12,7 @@ import (
 type CallLogStore interface {
 	Create(ctx context.Context, callLog *model.CallLog) (string, error)
 	ListAndTokenWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []map[string]any, error)
+	ListByTokenId(ctx context.Context, tokenIdList []string) ([]*model.CallLog, error)
 }
 
 type callLogStore struct {
@@ -63,4 +64,14 @@ func (t *callLogStore) ListAndTokenWithPage(ctx context.Context, page, pageSize 
 		return 0, nil, err
 	}
 	return count, result, nil
+}
+
+func (t *callLogStore) ListByTokenId(ctx context.Context, tokenIdList []string) ([]*model.CallLog, error) {
+	var callLogList []*model.CallLog
+	if err := t.db.WithContext(ctx).
+		Where("token_id IN ?", tokenIdList).
+		Find(&callLogList).Error; err != nil {
+		return nil, err
+	}
+	return callLogList, nil
 }

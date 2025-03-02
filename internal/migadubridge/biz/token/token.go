@@ -47,7 +47,6 @@ func (t *tokenBiz) Create(ctx *gin.Context, createToken *v1.CreateTokenReq) (*v1
 		Description:  createToken.Description,
 		Token:        token,
 		ExpiryAt:     time.Unix(createToken.ExpiryAt, 0),
-		LastCalledAt: time.Unix(0, 0),
 		Status:       enum.TokenStatusInactive,
 	})
 	if err != nil {
@@ -114,14 +113,6 @@ func (t *tokenBiz) Patch(ctx *gin.Context, id string, req *v1.PatchTokenReq) (*v
 }
 
 func (t *tokenBiz) List(ctx *gin.Context, req *v1.ListTokenReq) (*v1.ListTokenResp, error) {
-	if req.Page == 0 {
-		req.Page = 1
-	}
-
-	if req.PageSize == 0 {
-		req.PageSize = 10
-	}
-
 	if len(req.OrderBy) == 0 {
 		req.OrderBy = []string{"updated_at:desc"}
 	}
@@ -144,9 +135,11 @@ func (t *tokenBiz) List(ctx *gin.Context, req *v1.ListTokenReq) (*v1.ListTokenRe
 	}
 	if req.LastCalledAtBegin != 0 {
 		cond["last_called_at >= ?"] = []any{time.Unix(req.LastCalledAtBegin, 0)}
+		cond["last_called_at IS NOT NULL"] = []any{}
 	}
 	if req.LastCalledAtEnd != 0 {
 		cond["last_called_at <= ?"] = []any{time.Unix(req.LastCalledAtEnd, 0)}
+		cond["last_called_at IS NOT NULL"] = []any{}
 	}
 	if req.UpdatedAtBegin != 0 {
 		cond["updated_at >= ?"] = []any{time.Unix(req.UpdatedAtBegin, 0)}
@@ -195,6 +188,13 @@ func (t *tokenBiz) Get(ctx *gin.Context, id string) (*v1.Token, error) {
 }
 
 func (t *tokenBiz) transModelToVo(token *model.Token) *v1.Token {
+	var lastCalledUnix int64
+	if lastCalledAt, _ := token.LastCalledAt.Value(); lastCalledAt != nil {
+		if t, ok := lastCalledAt.(time.Time); ok {
+			lastCalledAt = t.Unix()
+		}
+	}
+
 	return &v1.Token{
 		Id:           token.Id,
 		TargetEmail:  token.TargetEmail,
@@ -202,7 +202,7 @@ func (t *tokenBiz) transModelToVo(token *model.Token) *v1.Token {
 		Description:  token.Description,
 		Token:        token.Token,
 		ExpiryAt:     token.ExpiryAt.Unix(),
-		LastCalledAt: token.LastCalledAt.Unix(),
+		LastCalledAt: lastCalledUnix,
 		Status:       token.Status,
 		CreatedAt:    token.CreatedAt.Unix(),
 		UpdatedAt:    token.UpdatedAt.Unix(),
