@@ -6,10 +6,10 @@ toolchain go1.24.0
 
 require (
 	github.com/ZhangXavier/migadu-go v0.0.0-20241222011451-78ddc37ad083
-	github.com/bytedance/sonic v1.12.9
-	github.com/gin-contrib/pprof v1.5.2
+	github.com/bytedance/sonic v1.12.10
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/sqlite v1.11.0
+	github.com/grafana/pyroscope-go/godeltaprof v0.1.8
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.6.0
 	github.com/rs/zerolog v1.33.0
@@ -41,6 +41,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

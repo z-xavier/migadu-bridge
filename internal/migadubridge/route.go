@@ -1,8 +1,9 @@
 package migadubridge
 
 import (
-	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
+
+	"migadu-bridge/pkg/pprof"
 
 	"migadu-bridge/internal/migadubridge/controller/aliases"
 	"migadu-bridge/internal/migadubridge/controller/bridges"
