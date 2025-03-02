@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-frontend:
-    if: github.event_name == 'push' && contains(github.event.commits.*.modified, 'frontend/')
+#    if: github.event_name == 'push' && contains(github.event.commits.*.modified, 'frontend/')
     runs-on: ubuntu-latest
     steps:
       -
