@@ -1,14 +1,27 @@
-import dayjs from 'dayjs'
+import dayjs from 'dayjs';
 
-export const formatDateTime = (val?: string | number) => {
+export const formatDateTime = (val?: number) => {
   if (val === undefined || val === null) {
-    return dayjs().format('YYYY-MM-DD HH:mm:ss') // 使用当前时间作为默认值
+    return '';
   }
 
-  const parsedDate = dayjs(val)
+  const parsedDate = dayjs.unix(val);
   if (!parsedDate.isValid()) {
-    throw new Error('Invalid date provided')
+    throw new Error('Invalid date provided');
   }
 
-  return parsedDate.format('YYYY-MM-DD HH:mm:ss')
-}
+  return parsedDate.format('YYYY-MM-DD HH:mm:ss');
+};
+export const getBeginOfDay = (date: dayjs.ConfigType) => {
+  return dayjs(date).startOf('day').unix();
+};
+
+export const getEndOfDay = (date: dayjs.ConfigType) => {
+  return dayjs(date).endOf('day').unix();
+};
+
+export const formatDateRange =
+  (fieldName: string) => (val: dayjs.ConfigType[]) => ({
+    [`${fieldName}Begin`]: getBeginOfDay(val[0]),
+    [`${fieldName}End`]: getEndOfDay(val[1]),
+  });
