@@ -7,7 +7,7 @@ import {
   TokenUpdateRequest,
 } from './typings';
 
-export async function queryTokenList(params: TokenListRequest) {
+export function query(params: TokenListRequest) {
   return request<TokenListResponse>(
     // 'http://127.0.0.1:4523/m1/5903528-5590418-default/api/v1/tokens',
     '/api/v1/tokens',
@@ -18,10 +18,7 @@ export async function queryTokenList(params: TokenListRequest) {
   );
 }
 
-export async function addToken(
-  body?: TokenAddRequest,
-  options?: { [key: string]: any },
-) {
+export function add(body?: TokenAddRequest, options?: { [key: string]: any }) {
   return request<TokenAddResponse>('/api/v1/tokens', {
     method: 'POST',
     data: body,
@@ -29,7 +26,7 @@ export async function addToken(
   });
 }
 
-export async function updateToken(
+export function update(
   id: string,
   body?: Omit<TokenUpdateRequest, 'id'>,
   options?: { [key: string]: any },
@@ -41,7 +38,7 @@ export async function updateToken(
   });
 }
 
-export async function updateTokenStatus(
+export function updateStatus(
   id: string,
   status: number,
   options?: { [key: string]: any },
@@ -55,10 +52,7 @@ export async function updateTokenStatus(
   });
 }
 
-export async function deleteToken(
-  id: string,
-  options?: { [key: string]: any },
-) {
+export function remove(id: string, options?: { [key: string]: any }) {
   return request(`/api/v1/tokens/${id}`, {
     method: 'DELETE',
     ...(options || {}),

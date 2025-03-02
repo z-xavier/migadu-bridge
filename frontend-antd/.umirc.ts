@@ -12,27 +12,22 @@ export default defineConfig({
   routes: [
     {
       path: '/',
-      redirect: '/home',
-    },
-    {
-      name: '首页',
-      path: '/home',
-      component: './Home',
-    },
-    {
-      name: '权限演示',
-      path: '/access',
-      component: './Access',
-    },
-    {
-      name: ' CRUD 示例',
-      path: '/table',
-      component: './Table',
+      redirect: '/Token',
     },
     {
       name: 'Token',
       path: '/token',
       component: './Token',
+    },
+    {
+      name: 'Call Log',
+      path: '/call-log',
+      component: './CallLog',
+    },
+    {
+      name: 'Alias',
+      path: '/alias',
+      component: './Alias',
     },
   ],
   npmClient: 'npm',
@@ -43,4 +38,5 @@ export default defineConfig({
       changeOrigin: true,
     },
   },
+  favicons: ['https://www.zxavier.com/avatar.webp'],
 });

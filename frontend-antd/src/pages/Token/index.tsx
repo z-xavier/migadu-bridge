@@ -8,18 +8,16 @@ import {
 import { Button, Drawer, message } from 'antd';
 import dayjs from 'dayjs';
 import React, { useRef, useState } from 'react';
-import { deleteToken } from '../../services/token/TokenController';
+import CustomModal from '../../components/CustomModal/CustomModal';
 import {
   TokenAddRequest,
   TokenListItem,
   TokenUpdateRequest,
   TokenUpdateStatusRequest,
 } from '../../services/token/typings';
-import CreateForm from './components/CreateForm';
-import { useTokenColumns } from './hooks/useTokenColums';
+import { useTokenColumns } from './hooks/useTokenColumns';
 
-const { queryTokenList, addToken, updateToken, updateTokenStatus } =
-  services.TokenController;
+const { query, add, update, updateStatus, remove } = services.TokenController;
 
 /**
  * 添加节点
@@ -28,7 +26,7 @@ const { queryTokenList, addToken, updateToken, updateTokenStatus } =
 const handleAdd = async (fields: TokenAddRequest) => {
   const hide = message.loading('正在添加');
   try {
-    await addToken({ ...fields });
+    await add({ ...fields });
     hide();
     message.success('添加成功');
     return true;
@@ -46,7 +44,7 @@ const handleAdd = async (fields: TokenAddRequest) => {
 const handleUpdate = async (fields: TokenUpdateRequest) => {
   const hide = message.loading('正在编辑');
   try {
-    await updateToken(fields.id, {
+    await update(fields.id, {
       description: fields.description,
       expiryAt: fields.expiryAt,
     });
@@ -63,7 +61,7 @@ const handleUpdate = async (fields: TokenUpdateRequest) => {
 const handleUpdateStatus = async (fields: TokenUpdateStatusRequest) => {
   const hide = message.loading('正在更新');
   try {
-    await updateTokenStatus(fields.id, fields.status);
+    await updateStatus(fields.id, fields.status);
     hide();
     message.success('更新成功');
     return true;
@@ -81,7 +79,7 @@ const handleUpdateStatus = async (fields: TokenUpdateStatusRequest) => {
 const handleRemove = async (id: string) => {
   const hide = message.loading('正在删除');
   try {
-    await deleteToken(id);
+    await remove(id);
     hide();
     message.success('删除成功，即将刷新');
     return true;
@@ -97,7 +95,7 @@ const TokenList: React.FC<unknown> = () => {
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
   const [stepFormValues, setStepFormValues] = useState<TokenListItem>();
   const actionRef = useRef<ActionType>();
-  const [row, setRow] = useState<API.UserInfo>();
+  const [row, setRow] = useState<TokenListItem>();
   const { columns, editColumns, checkColumns } = useTokenColumns({
     setUpdateModalVisible,
     setRow,
@@ -113,7 +111,7 @@ const TokenList: React.FC<unknown> = () => {
       }}
     >
       <ProTable<TokenListItem>
-        headerTitle="查询表格"
+        headerTitle="Token"
         actionRef={actionRef}
         rowKey="id"
         search={{
@@ -142,7 +140,7 @@ const TokenList: React.FC<unknown> = () => {
             };
           }
 
-          const res = await queryTokenList({
+          const res = await query({
             ...params,
             ...sortParams,
             // FIXME: remove @ts-ignore
@@ -157,7 +155,7 @@ const TokenList: React.FC<unknown> = () => {
         }}
         columns={columns}
       />
-      <CreateForm
+      <CustomModal
         onCancel={() => setCreateModalVisible(false)}
         modalVisible={createModalVisible}
       >
@@ -182,9 +180,9 @@ const TokenList: React.FC<unknown> = () => {
           type="form"
           columns={columns}
         />
-      </CreateForm>
+      </CustomModal>
 
-      <CreateForm
+      <CustomModal
         onCancel={() => setUpdateModalVisible(false)}
         modalVisible={updateModalVisible}
         title="编辑"
@@ -219,7 +217,7 @@ const TokenList: React.FC<unknown> = () => {
             },
           }}
         />
-      </CreateForm>
+      </CustomModal>
 
       <Drawer
         width={600}
@@ -232,7 +230,7 @@ const TokenList: React.FC<unknown> = () => {
         {row?.id && (
           <ProDescriptions<TokenListItem>
             column={1}
-            title={row?.name}
+            title=""
             request={async () => ({
               data: row || {},
             })}

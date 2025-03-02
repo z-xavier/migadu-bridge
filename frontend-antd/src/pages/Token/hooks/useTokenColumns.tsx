@@ -1,5 +1,6 @@
 import {
   ProColumns,
+  ProCoreActionType,
   ProDescriptionsItemProps,
 } from '@ant-design/pro-components';
 import { Button, ConfigProvider, Flex, Modal } from 'antd';
@@ -10,7 +11,10 @@ interface UseTokenColumnsProps {
   setUpdateModalVisible: (visible: boolean) => void;
   setRow: (row: TokenListItem) => void;
   setStepFormValues: (values: TokenListItem) => void;
-  handleUpdateStatus: (values: { id: string; status: number }) => void;
+  handleUpdateStatus: (values: {
+    id: string;
+    status: number;
+  }) => Promise<boolean>;
   handleRemove: (id: string) => Promise<boolean>;
 }
 export const useTokenColumns = ({
@@ -20,6 +24,19 @@ export const useTokenColumns = ({
   handleUpdateStatus,
   handleRemove,
 }: UseTokenColumnsProps) => {
+  const onUpdateStatus = async (
+    id: string,
+    status: number,
+    action: ProCoreActionType<{}> | undefined,
+  ) => {
+    const success = await handleUpdateStatus({ id, status });
+    if (success) {
+      if (action) {
+        action?.reload();
+      }
+    }
+  };
+
   const editColumns: ProColumns<TokenListItem>[] = [
     {
       title: '描述',
@@ -227,7 +244,7 @@ export const useTokenColumns = ({
               <Button
                 variant="text"
                 onClick={() => {
-                  handleUpdateStatus({ id: record.id, status: 3 });
+                  onUpdateStatus(record?.id, 3, action);
                 }}
               >
                 激活
@@ -237,7 +254,7 @@ export const useTokenColumns = ({
               <Button
                 variant="text"
                 onClick={() => {
-                  handleUpdateStatus({ id: record.id, status: 3 });
+                  onUpdateStatus(record?.id, 3, action);
                 }}
               >
                 暂停
@@ -247,7 +264,7 @@ export const useTokenColumns = ({
               <Button
                 variant="text"
                 onClick={() => {
-                  handleUpdateStatus({ id: record.id, status: 2 });
+                  onUpdateStatus(record?.id, 2, action);
                 }}
               >
                 使用
