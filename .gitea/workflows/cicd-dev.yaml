@@ -5,16 +5,46 @@ on:
   push:
     branches:
       - dev
-    paths-ignore:
-      - 'frontend/**'
 
 jobs:
+  build-frontend:
+    if: github.event_name == 'push' && contains(github.event.commits.*.modified, 'frontend/')
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout code
+        uses: actions/checkout@v4
+      -
+        name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      -
+        name: Install dependencies
+        run: npm ci --prefix frontend
+      -
+        name: Build frontend
+        run: npm run build --prefix frontend
+      -
+        name: Upload Frontend Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
   build-and-push:
     runs-on: ubuntu-latest
     steps:
       -
         name: Checkout code
         uses: actions/checkout@v4
+      -
+        name: Download Frontend Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -33,7 +63,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./docker/Dockerfile
+          file: ./docker/Dockerfile-Copy-Dist
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ vars.DOCKER_REGISTRY }}/xavier/migadu-bridge:dev

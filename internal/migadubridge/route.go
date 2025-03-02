@@ -1,8 +1,15 @@
 package migadubridge
 
 import (
+	"io"
+	"net/http"
+	"strings"
+	"sync"
+
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 
+	mstatic "migadu-bridge/internal/migadubridge/static"
 	"migadu-bridge/pkg/pprof"
 
 	"migadu-bridge/internal/migadubridge/controller/aliases"
@@ -11,14 +18,54 @@ import (
 	"migadu-bridge/internal/migadubridge/controller/tokens"
 	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/core"
-	"migadu-bridge/internal/pkg/errmsg"
 	"migadu-bridge/internal/pkg/log"
+)
+
+var indexContent = sync.OnceValue(func() []byte {
+	// 在程序启动时读取并缓存 index.html
+	indexFile, err := mstatic.GetFS().Open("index.html")
+	if err != nil {
+		log.WithError(err).Error("failed to open index.html")
+		return nil
+	}
+
+	defer func(indexFile http.File) {
+		err := indexFile.Close()
+		if err != nil {
+			log.WithError(err).Warn("failed to close index.html")
+		}
+	}(indexFile)
+
+	content, err := io.ReadAll(indexFile)
+	if err != nil {
+		log.WithError(err).Error("failed to read index.html")
+		return nil
+	}
+	return content
+})
+
+const (
+	HttpAcceptHeader    = "Accept"
+	ContentTypeText     = "text/html"
+	ContentTypeTextFull = "text/html; charset=utf-8"
 )
 
 // installInteriorWebRouters Gin 内部服务器
 func installInteriorWebRouters(g *gin.Engine) error {
+	g.Use(static.Serve("/", mstatic.GetFS()))
+
+	// 处理所有未匹配的路由，返回 index.html
 	g.NoRoute(func(c *gin.Context) {
-		core.WriteResponse(c, errmsg.ErrPageNotFound, nil)
+		// 只对 HTML 请求返回 index.html
+		if strings.Contains(c.Request.Header.Get(HttpAcceptHeader), ContentTypeText) {
+			c.Data(http.StatusOK, ContentTypeTextFull, indexContent())
+		} else {
+			c.Status(http.StatusNotFound)
+		}
+	})
+
+	g.GET("/ping", func(c *gin.Context) {
+		c.String(200, "pong")
 	})
 
 	pprof.Register(g)

@@ -1,18 +1,25 @@
-.PHONY: build build-all clean tool help
+.PHONY: build-go build-frontend build-all clean tool help
 
 all: build
 
-# build 只包括后端
-build: clean
-	go mod tidy && \
-	go vet ./... && \
-	go build -v ./
-
 # build 包括前端
-build-all: clean
+build: clean
+	npm ci --prefix frontend && \
+	npm run build --prefix frontend && \
+	cp -r frontend/dist internal/migadu-bridge/static && \
 	go mod tidy && \
 	go vet ./... && \
 	go build -v -ldflags '-s -w' ./
+
+build-frontend: clean
+	npm ci --prefix frontend && \
+	npm run build --prefix frontend
+
+# build 只包括后端
+build-go: clean
+	go mod tidy && \
+	go vet ./... && \
+	go build -v -tags dev ./
 
 build-docker:
 	cp docker/Dockerfile ./Dockerfile
@@ -26,6 +33,7 @@ tool:
 	gofmt -l .
 
 clean:
+	rm -rf frontend/dist
 	rm -rf migadu-bridge
 
 help:

@@ -80,7 +80,7 @@ func run() error {
 		return err
 	}
 
-	// 创建 Gin 引擎
+	// 创建 Gin 引擎 --针对 alias 创建请求
 	webHandler := gin.New()
 	webHandler.Use(gin.Recovery(),
 		middleware.Cors(),
