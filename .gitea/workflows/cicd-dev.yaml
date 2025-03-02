@@ -34,6 +34,7 @@ jobs:
           name: frontend-dist
           path: frontend/dist
   build-and-push:
+    needs: build-frontend
     runs-on: ubuntu-latest
     steps:
       -
