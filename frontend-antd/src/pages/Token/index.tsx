@@ -1,34 +1,34 @@
-import demoServices from '@/services/demo';
 import services from '@/services/token';
-
 import {
   ActionType,
-  FieldDatePicker,
-  FooterToolbar,
   PageContainer,
   ProDescriptions,
-  ProDescriptionsItemProps,
   ProTable,
 } from '@ant-design/pro-components';
-import { Button, Divider, Drawer, message } from 'antd';
+import { Button, Drawer, message } from 'antd';
+import dayjs from 'dayjs';
 import React, { useRef, useState } from 'react';
-import { TokenListItem } from '../../services/token/typings';
+import { deleteToken } from '../../services/token/TokenController';
+import {
+  TokenAddRequest,
+  TokenListItem,
+  TokenUpdateRequest,
+  TokenUpdateStatusRequest,
+} from '../../services/token/typings';
 import CreateForm from './components/CreateForm';
-import UpdateForm, { FormValueType } from './components/UpdateForm';
+import { useTokenColumns } from './hooks/useTokenColums';
 
-const { addUser, queryUserList, deleteUser, modifyUser } =
-  demoServices.UserController;
-
-const { queryTokenList } = services.TokenController;
+const { queryTokenList, addToken, updateToken, updateTokenStatus } =
+  services.TokenController;
 
 /**
  * 添加节点
  * @param fields
  */
-const handleAdd = async (fields: API.UserInfo) => {
+const handleAdd = async (fields: TokenAddRequest) => {
   const hide = message.loading('正在添加');
   try {
-    await addUser({ ...fields });
+    await addToken({ ...fields });
     hide();
     message.success('添加成功');
     return true;
@@ -43,26 +43,33 @@ const handleAdd = async (fields: API.UserInfo) => {
  * 更新节点
  * @param fields
  */
-const handleUpdate = async (fields: FormValueType) => {
-  const hide = message.loading('正在配置');
+const handleUpdate = async (fields: TokenUpdateRequest) => {
+  const hide = message.loading('正在编辑');
   try {
-    await modifyUser(
-      {
-        userId: fields.id || '',
-      },
-      {
-        name: fields.name || '',
-        nickName: fields.nickName || '',
-        email: fields.email || '',
-      },
-    );
+    await updateToken(fields.id, {
+      description: fields.description,
+      expiryAt: fields.expiryAt,
+    });
     hide();
-
-    message.success('配置成功');
+    message.success('编辑成功');
     return true;
   } catch (error) {
     hide();
-    message.error('配置失败请重试！');
+    message.error('编辑失败请重试！');
+    return false;
+  }
+};
+
+const handleUpdateStatus = async (fields: TokenUpdateStatusRequest) => {
+  const hide = message.loading('正在更新');
+  try {
+    await updateTokenStatus(fields.id, fields.status);
+    hide();
+    message.success('更新成功');
+    return true;
+  } catch (error) {
+    hide();
+    message.error('更新失败请重试！');
     return false;
   }
 };
@@ -71,13 +78,10 @@ const handleUpdate = async (fields: FormValueType) => {
  *  删除节点
  * @param selectedRows
  */
-const handleRemove = async (selectedRows: API.UserInfo[]) => {
+const handleRemove = async (id: string) => {
   const hide = message.loading('正在删除');
-  if (!selectedRows) return true;
   try {
-    await deleteUser({
-      userId: selectedRows.find((row) => row.id)?.id || '',
-    });
+    await deleteToken(id);
     hide();
     message.success('删除成功，即将刷新');
     return true;
@@ -88,130 +92,19 @@ const handleRemove = async (selectedRows: API.UserInfo[]) => {
   }
 };
 
-const renderDateTime = (val: React.ReactNode & (string | number)) => {
-  return (
-    <FieldDatePicker
-      text={val}
-      format="YYYY-MM-DD HH:mm:ss"
-      showTime
-      mode="read"
-      fieldProps={{}}
-    />
-  );
-};
-
 const TokenList: React.FC<unknown> = () => {
-  const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  const [updateModalVisible, handleUpdateModalVisible] =
-    useState<boolean>(false);
-  const [stepFormValues, setStepFormValues] = useState({});
+  const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
+  const [stepFormValues, setStepFormValues] = useState<TokenListItem>();
   const actionRef = useRef<ActionType>();
   const [row, setRow] = useState<API.UserInfo>();
-  const [selectedRowsState, setSelectedRows] = useState<API.UserInfo[]>([]);
-
-  const columns: ProDescriptionsItemProps<TokenListItem>[] = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      tip: 'test',
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-            message: '名称为必填项',
-          },
-        ],
-      },
-    },
-    {
-      title: '目标邮箱',
-      dataIndex: 'targetEmail',
-      valueType: 'text',
-    },
-    {
-      title: '模拟种类',
-      dataIndex: 'mockProvider',
-      valueType: 'text',
-      valueEnum: {
-        0: { text: 'addy', status: 'addy' },
-        1: { text: 'sl', status: 'sl' },
-      },
-    },
-    {
-      title: '描述',
-      dataIndex: 'description',
-      valueType: 'text',
-    },
-    {
-      title: '密钥',
-      dataIndex: 'token',
-      valueType: 'text',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      valueType: 'dateRange',
-      render: (_dom, entity) => {
-        return renderDateTime(entity?.createdAt);
-      },
-    },
-    {
-      title: '过期时间',
-      dataIndex: 'expiryAt',
-      valueType: 'dateRange',
-      render: (_dom, entity) => {
-        return renderDateTime(entity?.expiryAt);
-      },
-    },
-    {
-      title: '更新时间',
-      dataIndex: 'updatedAt',
-      valueType: 'dateRange',
-      render: (_dom, entity) => {
-        return renderDateTime(entity?.updatedAt);
-      },
-    },
-    {
-      title: '最近一次调用',
-      dataIndex: 'lastCalledAt',
-      valueType: 'dateRange',
-      render: (_dom, entity) => {
-        return renderDateTime(entity?.lastCalledAt);
-      },
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      valueType: 'text',
-      valueEnum: {
-        0: { text: '1', status: '1' },
-        1: { text: '2', status: '2' },
-        2: { text: '3', status: '3' },
-      },
-      render: (_dom, entity) => {
-        return renderDateTime(entity?.lastCalledAt);
-      },
-    },
-    {
-      title: '操作',
-      dataIndex: 'option',
-      valueType: 'option',
-      render: (_, record) => (
-        <>
-          <a
-            onClick={() => {
-              handleUpdateModalVisible(true);
-              setStepFormValues(record);
-            }}
-          >
-            配置
-          </a>
-          <Divider type="vertical" />
-          <a href="">订阅警报</a>
-        </>
-      ),
-    },
-  ];
+  const { columns, editColumns, checkColumns } = useTokenColumns({
+    setUpdateModalVisible,
+    setRow,
+    setStepFormValues,
+    handleUpdateStatus,
+    handleRemove,
+  });
 
   return (
     <PageContainer
@@ -224,68 +117,64 @@ const TokenList: React.FC<unknown> = () => {
         actionRef={actionRef}
         rowKey="id"
         search={{
-          labelWidth: 120,
+          labelWidth: 'auto',
+        }}
+        editable={{
+          type: 'multiple',
         }}
         toolBarRender={() => [
           <Button
             key="1"
             type="primary"
-            onClick={() => handleModalVisible(true)}
+            onClick={() => setCreateModalVisible(true)}
           >
             新建
           </Button>,
         ]}
         request={async (params, sorter, filter) => {
-          const data = await queryTokenList({
+          let sortParams = {};
+          const sorterKey = Object.keys(sorter ?? {})?.[0];
+          if (sorterKey) {
+            sortParams = {
+              orderBy: `${sorterKey}:${
+                sorter?.[sorterKey] === 'ascend' ? 'asc' : 'desc'
+              }`,
+            };
+          }
+
+          const res = await queryTokenList({
             ...params,
+            ...sortParams,
             // FIXME: remove @ts-ignore
             // @ts-ignore
-            sorter,
-            filter,
+            // filter,
           });
+
           return {
-            data: data?.list || [],
-            total: data?.total,
+            data: res?.data?.list || [],
+            total: res?.data?.total,
           };
         }}
         columns={columns}
-        rowSelection={{
-          onChange: (_, selectedRows) => setSelectedRows(selectedRows),
-        }}
       />
-      {selectedRowsState?.length > 0 && (
-        <FooterToolbar
-          extra={
-            <div>
-              已选择{' '}
-              <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a>{' '}
-              项&nbsp;&nbsp;
-            </div>
-          }
-        >
-          <Button
-            onClick={async () => {
-              await handleRemove(selectedRowsState);
-              setSelectedRows([]);
-              actionRef.current?.reloadAndRest?.();
-            }}
-          >
-            批量删除
-          </Button>
-          <Button type="primary">批量审批</Button>
-        </FooterToolbar>
-      )}
       <CreateForm
-        onCancel={() => handleModalVisible(false)}
+        onCancel={() => setCreateModalVisible(false)}
         modalVisible={createModalVisible}
       >
-        <ProTable<API.UserInfo, API.UserInfo>
+        <ProTable<TokenListItem, TokenAddRequest>
           onSubmit={async (value) => {
-            const success = await handleAdd(value);
-            if (success) {
-              handleModalVisible(false);
-              if (actionRef.current) {
-                actionRef.current.reload();
+            let tempExpireAt;
+            if (value?.expiryAt) {
+              tempExpireAt = dayjs(value?.expiryAt).unix();
+              const success = await handleAdd({
+                ...value,
+                expiryAt: tempExpireAt,
+              });
+              if (success) {
+                setCreateModalVisible(false);
+                if (actionRef.current) {
+                  actionRef.current.reload();
+                }
               }
             }
           }}
@@ -294,26 +183,43 @@ const TokenList: React.FC<unknown> = () => {
           columns={columns}
         />
       </CreateForm>
-      {stepFormValues && Object.keys(stepFormValues).length ? (
-        <UpdateForm
+
+      <CreateForm
+        onCancel={() => setUpdateModalVisible(false)}
+        modalVisible={updateModalVisible}
+        title="编辑"
+      >
+        <ProTable<TokenListItem, Omit<TokenUpdateRequest, 'id'>>
           onSubmit={async (value) => {
-            const success = await handleUpdate(value);
-            if (success) {
-              handleUpdateModalVisible(false);
-              setStepFormValues({});
-              if (actionRef.current) {
-                actionRef.current.reload();
+            let tempExpireAt;
+            if (value?.expiryAt && stepFormValues?.id) {
+              tempExpireAt = dayjs(value?.expiryAt).unix();
+              const success = await handleUpdate({
+                id: stepFormValues?.id,
+                description: value?.description,
+                expiryAt: tempExpireAt,
+              });
+              if (success) {
+                setUpdateModalVisible(false);
+                if (actionRef.current) {
+                  actionRef.current.reload();
+                }
               }
             }
           }}
-          onCancel={() => {
-            handleUpdateModalVisible(false);
-            setStepFormValues({});
+          rowKey="id"
+          type="form"
+          columns={editColumns}
+          form={{
+            initialValues: {
+              ...stepFormValues,
+              expiryAt: stepFormValues?.expiryAt
+                ? dayjs.unix(stepFormValues?.expiryAt)
+                : undefined,
+            },
           }}
-          updateModalVisible={updateModalVisible}
-          values={stepFormValues}
         />
-      ) : null}
+      </CreateForm>
 
       <Drawer
         width={600}
@@ -323,17 +229,17 @@ const TokenList: React.FC<unknown> = () => {
         }}
         closable={false}
       >
-        {row?.name && (
-          <ProDescriptions<API.UserInfo>
-            column={2}
+        {row?.id && (
+          <ProDescriptions<TokenListItem>
+            column={1}
             title={row?.name}
             request={async () => ({
               data: row || {},
             })}
             params={{
-              id: row?.name,
+              id: row?.id,
             }}
-            columns={columns}
+            columns={checkColumns}
           />
         )}
       </Drawer>

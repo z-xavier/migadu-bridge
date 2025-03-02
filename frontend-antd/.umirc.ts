@@ -36,4 +36,11 @@ export default defineConfig({
     },
   ],
   npmClient: 'npm',
+  proxy: {
+    '/api/v1': {
+      // target: 'http://192.168.123.11:8081',
+      target: 'http://127.0.0.1:4523/m1/5903528-5590418-default',
+      changeOrigin: true,
+    },
+  },
 });

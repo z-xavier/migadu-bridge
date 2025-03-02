@@ -4,15 +4,16 @@ import React, { PropsWithChildren } from 'react';
 interface CreateFormProps {
   modalVisible: boolean;
   onCancel: () => void;
+  title?: string;
 }
 
 const CreateForm: React.FC<PropsWithChildren<CreateFormProps>> = (props) => {
-  const { modalVisible, onCancel } = props;
+  const { modalVisible, onCancel, title = '新建' } = props;
 
   return (
     <Modal
       destroyOnClose
-      title="新建"
+      title={title}
       width={420}
       open={modalVisible}
       onCancel={() => onCancel()}
