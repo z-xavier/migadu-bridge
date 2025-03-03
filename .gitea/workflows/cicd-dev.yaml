@@ -16,7 +16,7 @@ jobs:
       -
         name: Restore frontend cache
         id: frontend-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: frontend/dist
           key: frontend-dist-${{ hashFiles('frontend/**') }}
