@@ -49,6 +49,7 @@ jobs:
           path: frontend/dist
           key: frontend-dist-${{ hashFiles('frontend/package-lock.json', 'frontend/**') }}
   build-and-push:
+    needs: build-frontend
     runs-on: ubuntu-latest
     steps:
       -
