@@ -58,7 +58,6 @@ jobs:
         uses: actions/checkout@v4
       -
         name: Restore frontend cache
-        if: steps.frontend-cache.outputs.cache-hit == 'true'
         uses: actions/cache@v3
         with:
           path: frontend/dist
