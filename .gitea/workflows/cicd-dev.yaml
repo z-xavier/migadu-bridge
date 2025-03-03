@@ -7,7 +7,7 @@ on:
       - dev
 
 jobs:
-  build-frontend:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       -
@@ -19,7 +19,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: frontend/dist
-          key: frontend-dist-${{ hashFiles('frontend/package-lock.json', 'frontend/**') }}
+          key: frontend-dist-${{ hashFiles('frontend/**') }}
           restore-keys: frontend-dist-
       -
         name: Set up Node.js
@@ -48,20 +48,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: frontend/dist
-          key: frontend-dist-${{ hashFiles('frontend/package-lock.json', 'frontend/**') }}
-  build-and-push:
-    needs: build-frontend
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Checkout code
-        uses: actions/checkout@v4
-      -
-        name: Restore frontend cache
-        uses: actions/cache@v3
-        with:
-          path: frontend/dist
-          key: frontend-dist-${{ hashFiles('frontend/package-lock.json', 'frontend/**') }}
+          key: frontend-dist-${{ hashFiles('frontend/**') }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
