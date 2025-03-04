@@ -96,4 +96,5 @@ jobs:
               -p ${{ vars.DOCKER_PORT_DEV_2 }}:8081 \
               -v ${{ vars.DOCKER_V_DEV }}/data:/data \
               -v ${{ vars.DOCKER_V_DEV }}/config:/config \
-              git.zxavier.com/xavier/migadu-bridge:dev
+              git.zxavier.com/xavier/migadu-bridge:dev && \
+            docker image prune
