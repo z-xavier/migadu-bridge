@@ -11,6 +11,7 @@ import (
 
 type CallLogStore interface {
 	Create(ctx context.Context, callLog *model.CallLog) (string, error)
+	Update(ctx context.Context, id string, callLog *model.CallLog) error
 	ListAndTokenWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []map[string]any, error)
 	ListByTokenId(ctx context.Context, tokenIdList []string) ([]*model.CallLog, error)
 }
@@ -29,6 +30,10 @@ func (t *callLogStore) Create(ctx context.Context, callLog *model.CallLog) (stri
 		return "", err
 	}
 	return callLog.Id, nil
+}
+
+func (t *callLogStore) Update(ctx context.Context, id string, callLog *model.CallLog) error {
+	return t.db.WithContext(ctx).Where("id = ?", id).Updates(callLog).Error
 }
 
 func (t *callLogStore) ListAndTokenWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []map[string]any, error) {

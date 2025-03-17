@@ -17,7 +17,7 @@ type TokenStore interface {
 	DeleteById(ctx context.Context, id string) error
 	UpdateById(ctx context.Context, id string, updates map[string]any) error
 	GetById(ctx context.Context, id string) (*model.Token, error)
-	GetByToken(ctx context.Context, mockProvider enum.ProviderEnum, tokenString string) (*model.Token, error) // TODO scanner token
+	GetActiveToken(ctx context.Context, mockProvider enum.ProviderEnum, tokenString string) (*model.Token, error) // TODO scanner token
 	ListByTargetEmail(ctx context.Context, targetEmailList []string) ([]*model.Token, error)
 	ListWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []*model.Token, error)
 }
@@ -57,7 +57,7 @@ func (t *tokenStore) GetById(ctx context.Context, id string) (*model.Token, erro
 	return &token, nil
 }
 
-func (t *tokenStore) GetByToken(ctx context.Context, mockProvider enum.ProviderEnum, tokenString string) (*model.Token, error) {
+func (t *tokenStore) GetActiveToken(ctx context.Context, mockProvider enum.ProviderEnum, tokenString string) (*model.Token, error) {
 	var token model.Token
 	if err := t.db.WithContext(ctx).Model(&model.Token{}).
 		Where("mock_provider = ?", mockProvider).

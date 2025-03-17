@@ -15,7 +15,7 @@ type Alias struct {
 	Email             string `json:"email"`
 	Name              string `json:"name"`
 	Enabled           bool   `json:"enabled"`
-	Id                int    `json:"id"`
+	Id                int64  `json:"id"`
 	Mailbox           struct {
 		Email string `json:"email"`
 		Id    int    `json:"id"`
