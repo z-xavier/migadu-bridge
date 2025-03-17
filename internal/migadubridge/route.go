@@ -116,7 +116,7 @@ func installRouters(g *gin.Engine) error {
 	g.Group("/api/v1/aliases").POST("", core.HandleResult(b.AddyAliases))
 
 	// simplelogin
-	g.Group("/api/alias/random/new").POST("", core.HandleResult(b.Simplelogin))
+	g.Group("/api/alias/random/new").POST("", b.SLAliasRandomNew)
 
 	return nil
 }
