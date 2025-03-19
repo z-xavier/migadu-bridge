@@ -7,9 +7,12 @@ toolchain go1.24.0
 require (
 	github.com/ZhangXavier/migadu-go v0.0.0-20241222011451-78ddc37ad083
 	github.com/bytedance/sonic v1.13.1
+	github.com/gin-contrib/cors v1.7.4
+	github.com/gin-contrib/requestid v1.0.4
 	github.com/gin-contrib/static v1.1.3
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/sqlite v1.11.0
+	github.com/google/uuid v1.6.0
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.8
 	github.com/pkg/errors v0.9.1
 	github.com/rs/xid v1.6.0
@@ -37,7 +40,6 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/goccy/go-json v0.10.4 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
@@ -65,10 +67,10 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/arch v0.12.0 // indirect
-	golang.org/x/crypto v0.32.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/net v0.37.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.22.5 // indirect
