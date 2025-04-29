@@ -11,7 +11,7 @@ import (
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-type AliasBiz interface {
+type Biz interface {
 	List(*gin.Context, *v1.ListAliasReq) (*v1.ListAliasResp, error)
 }
 
@@ -19,7 +19,7 @@ type aliasBiz struct {
 	ds store.IStore
 }
 
-func New(ds store.IStore) AliasBiz {
+func New(ds store.IStore) Biz {
 	return &aliasBiz{ds: ds}
 }
 

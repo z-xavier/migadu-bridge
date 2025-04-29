@@ -7,12 +7,12 @@ import (
 	"migadu-bridge/pkg/api/enum"
 )
 
-type ProviderBiz interface {
+type Biz interface {
 	AliasRandomNew(ctx context.Context, domain, desc string) error
 }
 
-// New 创建一个实现了 ProviderBiz 接口的实例.
-func New(providerEnum enum.ProviderEnum) (ProviderBiz, error) {
+// New 创建一个实现了 Biz 接口的实例.
+func New(providerEnum enum.ProviderEnum) (Biz, error) {
 	switch providerEnum {
 	case enum.ProviderEnumAddy:
 		return NewAddy(), nil

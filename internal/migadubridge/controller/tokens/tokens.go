@@ -11,91 +11,91 @@ import (
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-// TokenController 定义了 controller 层需要实现的方法.
-type TokenController struct {
+// Controller 定义了 controller 层需要实现的方法.
+type Controller struct {
 	b biz.IBiz
 }
 
 // New 创建一个 token controller.
-func New(ds store.IStore) *TokenController {
-	return &TokenController{b: biz.NewBiz(ds)}
+func New(ds store.IStore) *Controller {
+	return &Controller{b: biz.NewBiz(ds)}
 }
 
-func (tc *TokenController) Create(c *gin.Context) (any, error) {
-	log.C(c).Infof("create token begin")
+func (tc *Controller) Create(c *gin.Context) (any, error) {
+	log.C(c).Info("create token begin")
 
 	var r v1.CreateTokenReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Errorf("create token request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("create token request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
 	return tc.b.Token().Create(c, &r)
 }
 
-func (tc *TokenController) Delete(c *gin.Context) (any, error) {
-	log.C(c).Infof("delete token begin")
+func (tc *Controller) Delete(c *gin.Context) (any, error) {
+	log.C(c).Info("delete token begin")
 
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
-		log.C(c).Errorf("token id is empty")
+		log.C(c).Error("token id is empty")
 		return nil, errmsg.ErrBind.SetMessage("token id is required")
 	}
 
 	return nil, tc.b.Token().Delete(c, tokenId)
 }
 
-func (tc *TokenController) Put(c *gin.Context) (any, error) {
-	log.C(c).Infof("put token begin")
+func (tc *Controller) Put(c *gin.Context) (any, error) {
+	log.C(c).Info("put token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
-		log.C(c).Errorf("token id is empty")
+		log.C(c).Error("token id is empty")
 		return nil, errmsg.ErrBind.SetMessage("token id is required")
 	}
 
 	var r v1.PutTokenReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Infof("put token request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("put token request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
 	return tc.b.Token().Put(c, tokenId, &r)
 }
 
-func (tc *TokenController) Patch(c *gin.Context) (any, error) {
-	log.C(c).Infof("patch token begin")
+func (tc *Controller) Patch(c *gin.Context) (any, error) {
+	log.C(c).Info("patch token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
-		log.C(c).Errorf("token id is empty")
+		log.C(c).Error("token id is empty")
 		return nil, errmsg.ErrBind.SetMessage("token id is required")
 	}
 
 	var r v1.PatchTokenReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Infof("patch token request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("patch token request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
 	return tc.b.Token().Patch(c, tokenId, &r)
 }
 
-func (tc *TokenController) List(c *gin.Context) (any, error) {
-	log.C(c).Infof("list token begin")
+func (tc *Controller) List(c *gin.Context) (any, error) {
+	log.C(c).Info("list token begin")
 
 	var r v1.ListTokenReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Errorf("list token request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("list token request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
 	return tc.b.Token().List(c, &r)
 }
 
-func (tc *TokenController) Get(c *gin.Context) (any, error) {
-	log.C(c).Infof("get token begin")
+func (tc *Controller) Get(c *gin.Context) (any, error) {
+	log.C(c).Info("get token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
-		log.C(c).Errorf("token id is empty")
+		log.C(c).Error("token id is empty")
 		return nil, errmsg.ErrBind.SetMessage("token id is required")
 	}
 

@@ -141,7 +141,7 @@ func NewLogger(opts *Options) *sLogger {
 	}
 
 	// 配置 JSON 序列化
-	zerolog.InterfaceMarshalFunc = func(v interface{}) ([]byte, error) {
+	zerolog.InterfaceMarshalFunc = func(v any) ([]byte, error) {
 		var buf bytes.Buffer
 		encoder := sonic.ConfigDefault.NewEncoder(&buf)
 		encoder.SetEscapeHTML(false)
