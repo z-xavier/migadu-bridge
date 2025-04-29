@@ -42,3 +42,7 @@ type LatestActivityContact struct {
 	Name         any    `json:"name"`
 	ReverseAlias string `json:"reverse_alias"`
 }
+
+type ErrorResp struct {
+	Error string `json:"error"`
+}

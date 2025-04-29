@@ -49,3 +49,7 @@ type CreateAliasReq struct {
 type CreateAliasResp struct {
 	Data *Alias `json:"data"`
 }
+
+type ErrorResp struct {
+	Error string `json:"error"`
+}
