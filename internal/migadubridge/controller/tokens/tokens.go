@@ -22,7 +22,7 @@ func New(ds store.IStore) *Controller {
 }
 
 func (tc *Controller) Create(c *gin.Context) (any, error) {
-	log.C(c).Infof("create token begin")
+	log.C(c).Info("create token begin")
 
 	var r v1.CreateTokenReq
 	if err := c.ShouldBind(&r); err != nil {
@@ -34,7 +34,7 @@ func (tc *Controller) Create(c *gin.Context) (any, error) {
 }
 
 func (tc *Controller) Delete(c *gin.Context) (any, error) {
-	log.C(c).Infof("delete token begin")
+	log.C(c).Info("delete token begin")
 
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
@@ -46,7 +46,7 @@ func (tc *Controller) Delete(c *gin.Context) (any, error) {
 }
 
 func (tc *Controller) Put(c *gin.Context) (any, error) {
-	log.C(c).Infof("put token begin")
+	log.C(c).Info("put token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
 		log.C(c).Error("token id is empty")
@@ -63,7 +63,7 @@ func (tc *Controller) Put(c *gin.Context) (any, error) {
 }
 
 func (tc *Controller) Patch(c *gin.Context) (any, error) {
-	log.C(c).Infof("patch token begin")
+	log.C(c).Info("patch token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
 		log.C(c).Error("token id is empty")
@@ -80,7 +80,7 @@ func (tc *Controller) Patch(c *gin.Context) (any, error) {
 }
 
 func (tc *Controller) List(c *gin.Context) (any, error) {
-	log.C(c).Infof("list token begin")
+	log.C(c).Info("list token begin")
 
 	var r v1.ListTokenReq
 	if err := c.ShouldBind(&r); err != nil {
@@ -92,7 +92,7 @@ func (tc *Controller) List(c *gin.Context) (any, error) {
 }
 
 func (tc *Controller) Get(c *gin.Context) (any, error) {
-	log.C(c).Infof("get token begin")
+	log.C(c).Info("get token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
 		log.C(c).Error("token id is empty")

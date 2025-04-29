@@ -18,7 +18,7 @@ import (
 
 func (b *bridgeBiz) SLAliasRandomNew(c *gin.Context, req *sl.AliasRandomNewReq) (*sl.Alias, int, error) {
 	if req.Authentication == "" {
-		log.C(c).Errorf("Biz SLAliasRandomNew token is nil")
+		log.C(c).Error("Biz SLAliasRandomNew token is nil")
 		return nil, http.StatusUnauthorized, errors.New("token is nil")
 	}
 

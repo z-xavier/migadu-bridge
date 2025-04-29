@@ -10,7 +10,7 @@ import (
 )
 
 func (bc *Controller) SLAliasRandomNew(c *gin.Context) {
-	log.C(c).Infof("SLAliasRandomNew begin")
+	log.C(c).Info("SLAliasRandomNew begin")
 
 	// https://github.com/simple-login/app/blob/master/docs/api.md#post-apialiasrandomnew
 	var r sl.AliasRandomNewReq

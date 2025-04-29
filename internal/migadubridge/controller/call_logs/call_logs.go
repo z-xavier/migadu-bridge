@@ -22,7 +22,7 @@ func New(ds store.IStore) *Controller {
 }
 
 func (cc *Controller) List(c *gin.Context) (any, error) {
-	log.C(c).Infof("list call logs begin")
+	log.C(c).Info("list call logs begin")
 
 	var r v1.ListCallLogReq
 	if err := c.ShouldBind(&r); err != nil {

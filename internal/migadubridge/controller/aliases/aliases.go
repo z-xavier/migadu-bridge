@@ -22,7 +22,7 @@ func New(ds store.IStore) *Controller {
 }
 
 func (ac *Controller) List(c *gin.Context) (any, error) {
-	log.C(c).Infof("list aliasese begin")
+	log.C(c).Info("list aliasese begin")
 
 	var r v1.ListAliasReq
 	if err := c.ShouldBind(&r); err != nil {

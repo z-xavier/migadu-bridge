@@ -10,7 +10,7 @@ import (
 )
 
 func (bc *Controller) AddyAliases(c *gin.Context) {
-	log.C(c).Infof("AddyAliases begin")
+	log.C(c).Info("AddyAliases begin")
 
 	// https://app.addy.io/docs/#aliases-POSTapi-v1-aliases
 	var r addy.CreateAliasReq

@@ -34,7 +34,7 @@ var words = sync.OnceValue(func() []string {
 	var r io.Reader
 
 	if file, err := os.Open(UnixWordsPath); err != nil {
-		log.WithError(err).WithField("path", UnixWordsPath).Infof("Failed to Get Words From UnixWordsPath, Try Embed.")
+		log.WithError(err).WithField("path", UnixWordsPath).Info("Failed to Get Words From UnixWordsPath, Try Embed.")
 		if fs, err := embedWord.Open(EmbedWordsPath); err != nil {
 			log.WithError(err).Fatalw("Failed to open embedded words.")
 			return []string{}

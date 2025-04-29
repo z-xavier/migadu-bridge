@@ -21,11 +21,11 @@ import (
 
 func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy.CreateAliasResp, int, error) {
 	if req.Authorization == "" {
-		log.C(c).Errorf("Biz AddyAliases token is nil")
+		log.C(c).Error("Biz AddyAliases token is nil")
 		return nil, http.StatusUnauthorized, errors.New("token is nil")
 	}
 	if req.XRequestedWith != "XMLHttpRequest" {
-		log.C(c).Errorf("Biz AddyAliases XRequestedWith is nil")
+		log.C(c).Error("Biz AddyAliases XRequestedWith is nil")
 		return nil, http.StatusBadRequest, errors.New("XRequestedWith not eq XMLHttpRequest")
 	}
 
@@ -75,7 +75,7 @@ func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy
 		}
 	}
 	if localPart == "" {
-		log.C(c).Errorf("Biz AddyAliases localPart is nil")
+		log.C(c).Error("Biz AddyAliases localPart is nil")
 		return nil, http.StatusBadRequest, errors.New("localPart is nil")
 	}
 
