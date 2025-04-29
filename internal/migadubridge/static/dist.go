@@ -13,6 +13,6 @@ import (
 //go:embed dist
 var server embed.FS
 
-func GetFS() static.ServeFileSystem {
+func GetFS() (static.ServeFileSystem, error) {
 	return static.EmbedFolder(server, "dist")
 }
