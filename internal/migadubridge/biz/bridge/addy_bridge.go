@@ -34,7 +34,7 @@ func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy
 		log.C(c).WithError(err).Error("AddyAliases checkToken")
 		return nil, http.StatusUnauthorized, errors.New("check token error")
 	}
-	logId, err := b.log(c, token)
+	logId, err := b.log(c, token, req.Description)
 	if err != nil {
 		log.C(c).WithError(err).Error("AddyAliases log")
 		return nil, http.StatusBadRequest, err

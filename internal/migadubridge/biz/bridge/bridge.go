@@ -43,9 +43,10 @@ func (b *bridgeBiz) checkToken(c *gin.Context, mockProvider enum.ProviderEnum, t
 	return token, nil
 }
 
-func (b *bridgeBiz) log(c *gin.Context, token *model.Token) (string, error) {
+func (b *bridgeBiz) log(c *gin.Context, token *model.Token, desc string) (string, error) {
 	logId, err := b.ds.CallLog().Create(c, &model.CallLog{
 		TokenId:     token.Id,
+		Description: desc,
 		RequestPath: c.Request.URL.Path,
 		RequestAt:   c.GetTime(common.XRequestTime),
 	})

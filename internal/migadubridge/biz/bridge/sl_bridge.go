@@ -27,7 +27,7 @@ func (b *bridgeBiz) SLAliasRandomNew(c *gin.Context, req *sl.AliasRandomNewReq) 
 		log.C(c).WithError(err).Error("SLAliasRandomNew checkToken")
 		return nil, http.StatusUnauthorized, errors.New("check token error")
 	}
-	logId, err := b.log(c, token)
+	logId, err := b.log(c, token, req.Note)
 	if err != nil {
 		log.C(c).WithError(err).Error("SLAliasRandomNew log")
 		return nil, http.StatusBadRequest, err
