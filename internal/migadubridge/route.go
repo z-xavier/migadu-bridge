@@ -23,7 +23,13 @@ import (
 
 var indexContent = sync.OnceValue(func() []byte {
 	// 在程序启动时读取并缓存 index.html
-	indexFile, err := mstatic.GetFS().Open("index.html")
+	fs, err := mstatic.GetFS()
+	if err != nil {
+		log.WithError(err).Error("failed to get static file system")
+		return nil
+	}
+
+	indexFile, err := fs.Open("index.html")
 	if err != nil {
 		log.WithError(err).Error("failed to open index.html")
 		return nil
@@ -52,7 +58,12 @@ const (
 
 // installInteriorWebRouters Gin 内部服务器
 func installInteriorWebRouters(g *gin.Engine) error {
-	g.Use(static.Serve("/", mstatic.GetFS()))
+	fs, err := mstatic.GetFS()
+	if err != nil {
+		log.WithError(err).Error("failed to get static file system")
+		return nil
+	}
+	g.Use(static.Serve("/", fs))
 
 	// 处理所有未匹配的路由，返回 index.html
 	g.NoRoute(func(c *gin.Context) {
