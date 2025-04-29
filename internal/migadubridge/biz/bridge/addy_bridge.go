@@ -14,6 +14,7 @@ import (
 	"migadu-bridge/internal/pkg/log"
 	"migadu-bridge/internal/pkg/migadu"
 	"migadu-bridge/internal/pkg/rwords"
+	"migadu-bridge/internal/pkg/utils"
 	"migadu-bridge/pkg/api/enum"
 	"migadu-bridge/pkg/api/manage/bridge/addy"
 )
@@ -30,12 +31,12 @@ func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy
 
 	token, err := b.checkToken(c, enum.ProviderEnumAddy, req.Authorization)
 	if err != nil {
-		log.C(c).Errorf("AddyAliases checkToken error: %s", err.Error())
+		log.C(c).WithError(err).Error("AddyAliases checkToken")
 		return nil, http.StatusUnauthorized, errors.New("check token error")
 	}
 	logId, err := b.log(c, token)
 	if err != nil {
-		log.C(c).Errorf("AddyAliases log error: %s", err.Error())
+		log.C(c).WithError(err).Error("AddyAliases log")
 		return nil, http.StatusBadRequest, err
 	}
 
@@ -60,7 +61,7 @@ func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy
 		{
 			localPart, err = rwords.GetGetRWordsDefault()
 			if err != nil {
-				log.C(c).Errorf("Biz GetRWords error: %s", err.Error())
+				log.C(c).WithError(err).Error("Biz GetRWords")
 				return nil, http.StatusBadRequest, err
 			}
 		}
@@ -80,27 +81,27 @@ func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy
 
 	client, err := migadu.MigaduClient()
 	if err != nil {
-		log.C(c).Errorf("Biz NewMigaduClient error: %s", err.Error())
+		log.C(c).WithError(err).Error("Biz NewMigaduClient")
 		return nil, http.StatusBadRequest, err
 	}
 
 	alias, err := client.GetAlias(c, localPart)
-	if err != nil && !strings.HasPrefix(err.Error(), "no such alias") {
-		log.C(c).Errorf("Biz GetAlias error: %s", err.Error())
+	if err != nil && !utils.IsMigaduHttpErr(err, http.StatusNotFound, "no such alias") {
+		log.C(c).WithError(err).Error("Biz GetAlias")
 		return nil, http.StatusBadRequest, err
 	} else if err == nil && alias != nil {
 		log.C(c).Errorf("Biz HasAlias localPart: %s", localPart)
 		return nil, http.StatusBadRequest, errors.New("alias already exists")
 	}
 
-	alias, err = client.NewAlias(c, localPart, []string{req.Description})
+	alias, err = client.NewAlias(c, localPart, []string{token.TargetEmail})
 	if err != nil {
-		log.C(c).Errorf("Biz NewAlias error: %s", err.Error())
+		log.C(c).WithError(err).Error("Biz NewAlias")
 		return nil, http.StatusBadRequest, err
 	}
 
 	if err = b.logAlias(c, logId, alias.Address); err != nil {
-		log.C(c).Errorf("Biz logAlias error: %s", err.Error())
+		log.C(c).WithError(err).Error("Biz logAlias")
 		return nil, http.StatusBadRequest, err
 	}
 

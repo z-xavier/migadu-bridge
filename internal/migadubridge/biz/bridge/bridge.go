@@ -28,7 +28,7 @@ func New(ds store.IStore) Biz {
 func (b *bridgeBiz) checkToken(c *gin.Context, mockProvider enum.ProviderEnum, tokenString string) (*model.Token, error) {
 	token, err := b.ds.Token().GetActiveToken(c, mockProvider, tokenString)
 	if err != nil {
-		log.C(c).Errorf("Biz CheckToken error: %s", err.Error())
+		log.C(c).WithError(err).Error("Biz CheckToken")
 		return nil, err
 	}
 
@@ -36,7 +36,7 @@ func (b *bridgeBiz) checkToken(c *gin.Context, mockProvider enum.ProviderEnum, t
 		"last_called_at": c.GetTime(common.XRequestTime),
 		"status":         enum.TokenStatusActive,
 	}); err != nil {
-		log.C(c).Errorf("Biz UpdateToken error: %s", err.Error())
+		log.C(c).WithError(err).Error("Biz UpdateToken")
 		return nil, err
 	}
 
@@ -50,7 +50,7 @@ func (b *bridgeBiz) log(c *gin.Context, token *model.Token) (string, error) {
 		RequestAt:   c.GetTime(common.XRequestTime),
 	})
 	if err != nil {
-		log.C(c).Errorf("Biz CreateCallLog error: %s", err.Error())
+		log.C(c).WithError(err).Error("Biz CreateCallLog")
 		return "", err
 	}
 	return logId, nil
@@ -60,7 +60,7 @@ func (b *bridgeBiz) logAlias(c *gin.Context, logId, genAlias string) error {
 	if err := b.ds.CallLog().Update(c, logId, &model.CallLog{
 		GenAlias: genAlias,
 	}); err != nil {
-		log.C(c).Errorf("Biz UpdateCallLog error: %s", err.Error())
+		log.C(c).WithError(err).Error("Biz UpdateCallLog")
 		return err
 	}
 	return nil

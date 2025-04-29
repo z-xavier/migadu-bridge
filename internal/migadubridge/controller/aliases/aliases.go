@@ -26,7 +26,7 @@ func (ac *Controller) List(c *gin.Context) (any, error) {
 
 	var r v1.ListAliasReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Errorf("list aliasese request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("list aliasese request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 

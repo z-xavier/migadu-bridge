@@ -26,7 +26,7 @@ func (tc *Controller) Create(c *gin.Context) (any, error) {
 
 	var r v1.CreateTokenReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Errorf("create token request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("create token request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
@@ -38,7 +38,7 @@ func (tc *Controller) Delete(c *gin.Context) (any, error) {
 
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
-		log.C(c).Errorf("token id is empty")
+		log.C(c).Error("token id is empty")
 		return nil, errmsg.ErrBind.SetMessage("token id is required")
 	}
 
@@ -49,13 +49,13 @@ func (tc *Controller) Put(c *gin.Context) (any, error) {
 	log.C(c).Infof("put token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
-		log.C(c).Errorf("token id is empty")
+		log.C(c).Error("token id is empty")
 		return nil, errmsg.ErrBind.SetMessage("token id is required")
 	}
 
 	var r v1.PutTokenReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Infof("put token request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("put token request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
@@ -66,13 +66,13 @@ func (tc *Controller) Patch(c *gin.Context) (any, error) {
 	log.C(c).Infof("patch token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
-		log.C(c).Errorf("token id is empty")
+		log.C(c).Error("token id is empty")
 		return nil, errmsg.ErrBind.SetMessage("token id is required")
 	}
 
 	var r v1.PatchTokenReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Infof("patch token request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("patch token request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
@@ -84,7 +84,7 @@ func (tc *Controller) List(c *gin.Context) (any, error) {
 
 	var r v1.ListTokenReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Errorf("list token request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("list token request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
@@ -95,7 +95,7 @@ func (tc *Controller) Get(c *gin.Context) (any, error) {
 	log.C(c).Infof("get token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
-		log.C(c).Errorf("token id is empty")
+		log.C(c).Error("token id is empty")
 		return nil, errmsg.ErrBind.SetMessage("token id is required")
 	}
 

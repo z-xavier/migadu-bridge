@@ -26,7 +26,7 @@ func (cc *Controller) List(c *gin.Context) (any, error) {
 
 	var r v1.ListCallLogReq
 	if err := c.ShouldBind(&r); err != nil {
-		log.C(c).Errorf("list call logs request parse error: %s", err.Error())
+		log.C(c).WithError(err).Error("list call logs request parse")
 		return nil, errmsg.ErrBind.WithCause(err)
 	}
 
