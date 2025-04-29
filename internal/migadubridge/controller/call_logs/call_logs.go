@@ -10,18 +10,18 @@ import (
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-// CallLogsController 定义了 controller 层需要实现的方法.
-type CallLogsController struct {
+// Controller 定义了 controller 层需要实现的方法.
+type Controller struct {
 	b biz.IBiz
 }
 
-func New(ds store.IStore) *CallLogsController {
-	return &CallLogsController{
+func New(ds store.IStore) *Controller {
+	return &Controller{
 		b: biz.NewBiz(ds),
 	}
 }
 
-func (cc *CallLogsController) List(c *gin.Context) (any, error) {
+func (cc *Controller) List(c *gin.Context) (any, error) {
 	log.C(c).Infof("list call logs begin")
 
 	var r v1.ListCallLogReq

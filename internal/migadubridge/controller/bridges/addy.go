@@ -9,7 +9,7 @@ import (
 	"migadu-bridge/pkg/api/manage/bridge/addy"
 )
 
-func (bc *BridgesController) AddyAliases(c *gin.Context) {
+func (bc *Controller) AddyAliases(c *gin.Context) {
 	log.C(c).Infof("AddyAliases begin")
 
 	// https://app.addy.io/docs/#aliases-POSTapi-v1-aliases

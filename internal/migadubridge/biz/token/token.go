@@ -17,7 +17,7 @@ import (
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-type TokenBiz interface {
+type Biz interface {
 	Create(*gin.Context, *v1.CreateTokenReq) (*v1.Token, error)
 	Delete(*gin.Context, string) error
 	Put(*gin.Context, string, *v1.PutTokenReq) (*v1.Token, error)
@@ -30,7 +30,7 @@ type tokenBiz struct {
 	ds store.IStore
 }
 
-func New(ds store.IStore) TokenBiz {
+func New(ds store.IStore) Biz {
 	return &tokenBiz{ds: ds}
 }
 

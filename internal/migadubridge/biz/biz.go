@@ -11,13 +11,13 @@ import (
 // IBiz 定义了 Biz 层需要实现的方法.
 type IBiz interface {
 	// Token 管理 token
-	Token() token.TokenBiz
+	Token() token.Biz
 	// CallLog 调用记录
-	CallLog() call_log.CallLogBiz
+	CallLog() call_log.Biz
 	// Alias 当前别名查看
-	Alias() alias.AliasBiz
+	Alias() alias.Biz
 	// Bridge 转发外部请求
-	Bridge() bridge.BridgeBiz
+	Bridge() bridge.Biz
 }
 
 // biz 是 IBiz 的一个具体实现.
@@ -30,18 +30,18 @@ func NewBiz(ds store.IStore) IBiz {
 	return &biz{ds: ds}
 }
 
-func (b *biz) Token() token.TokenBiz {
+func (b *biz) Token() token.Biz {
 	return token.New(b.ds)
 }
 
-func (b *biz) CallLog() call_log.CallLogBiz {
+func (b *biz) CallLog() call_log.Biz {
 	return call_log.New(b.ds)
 }
 
-func (b *biz) Alias() alias.AliasBiz {
+func (b *biz) Alias() alias.Biz {
 	return alias.New(b.ds)
 }
 
-func (b *biz) Bridge() bridge.BridgeBiz {
+func (b *biz) Bridge() bridge.Biz {
 	return bridge.New(b.ds)
 }

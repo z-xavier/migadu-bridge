@@ -15,7 +15,7 @@ import (
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-type CallLogBiz interface {
+type Biz interface {
 	List(*gin.Context, *v1.ListCallLogReq) (*v1.ListCallLogResp, error)
 }
 
@@ -23,7 +23,7 @@ type callLogBiz struct {
 	ds store.IStore
 }
 
-func New(ds store.IStore) CallLogBiz {
+func New(ds store.IStore) Biz {
 	return &callLogBiz{ds: ds}
 }
 

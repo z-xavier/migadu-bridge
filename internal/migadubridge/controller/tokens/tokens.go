@@ -11,17 +11,17 @@ import (
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-// TokenController 定义了 controller 层需要实现的方法.
-type TokenController struct {
+// Controller 定义了 controller 层需要实现的方法.
+type Controller struct {
 	b biz.IBiz
 }
 
 // New 创建一个 token controller.
-func New(ds store.IStore) *TokenController {
-	return &TokenController{b: biz.NewBiz(ds)}
+func New(ds store.IStore) *Controller {
+	return &Controller{b: biz.NewBiz(ds)}
 }
 
-func (tc *TokenController) Create(c *gin.Context) (any, error) {
+func (tc *Controller) Create(c *gin.Context) (any, error) {
 	log.C(c).Infof("create token begin")
 
 	var r v1.CreateTokenReq
@@ -33,7 +33,7 @@ func (tc *TokenController) Create(c *gin.Context) (any, error) {
 	return tc.b.Token().Create(c, &r)
 }
 
-func (tc *TokenController) Delete(c *gin.Context) (any, error) {
+func (tc *Controller) Delete(c *gin.Context) (any, error) {
 	log.C(c).Infof("delete token begin")
 
 	tokenId := c.Param(common.ParamUriTokenId)
@@ -45,7 +45,7 @@ func (tc *TokenController) Delete(c *gin.Context) (any, error) {
 	return nil, tc.b.Token().Delete(c, tokenId)
 }
 
-func (tc *TokenController) Put(c *gin.Context) (any, error) {
+func (tc *Controller) Put(c *gin.Context) (any, error) {
 	log.C(c).Infof("put token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
@@ -62,7 +62,7 @@ func (tc *TokenController) Put(c *gin.Context) (any, error) {
 	return tc.b.Token().Put(c, tokenId, &r)
 }
 
-func (tc *TokenController) Patch(c *gin.Context) (any, error) {
+func (tc *Controller) Patch(c *gin.Context) (any, error) {
 	log.C(c).Infof("patch token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {
@@ -79,7 +79,7 @@ func (tc *TokenController) Patch(c *gin.Context) (any, error) {
 	return tc.b.Token().Patch(c, tokenId, &r)
 }
 
-func (tc *TokenController) List(c *gin.Context) (any, error) {
+func (tc *Controller) List(c *gin.Context) (any, error) {
 	log.C(c).Infof("list token begin")
 
 	var r v1.ListTokenReq
@@ -91,7 +91,7 @@ func (tc *TokenController) List(c *gin.Context) (any, error) {
 	return tc.b.Token().List(c, &r)
 }
 
-func (tc *TokenController) Get(c *gin.Context) (any, error) {
+func (tc *Controller) Get(c *gin.Context) (any, error) {
 	log.C(c).Infof("get token begin")
 	tokenId := c.Param(common.ParamUriTokenId)
 	if tokenId == "" {

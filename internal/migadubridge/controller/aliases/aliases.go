@@ -10,18 +10,18 @@ import (
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-// AliasesController 定义了 controller 层需要实现的方法.
-type AliasesController struct {
+// Controller 定义了 controller 层需要实现的方法.
+type Controller struct {
 	b biz.IBiz
 }
 
-func New(ds store.IStore) *AliasesController {
-	return &AliasesController{
+func New(ds store.IStore) *Controller {
+	return &Controller{
 		b: biz.NewBiz(ds),
 	}
 }
 
-func (ac *AliasesController) List(c *gin.Context) (any, error) {
+func (ac *Controller) List(c *gin.Context) (any, error) {
 	log.C(c).Infof("list aliasese begin")
 
 	var r v1.ListAliasReq
