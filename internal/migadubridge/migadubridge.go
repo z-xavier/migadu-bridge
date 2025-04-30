@@ -78,6 +78,7 @@ func run() error {
 	interiorWebHandler.Use(gin.Recovery(),
 		middleware.Cors(),
 		middleware.RequestId(),
+		middleware.RequestTime(),
 		middleware.GinLog(),
 		middleware.ResponseTime(),
 	)
@@ -90,6 +91,7 @@ func run() error {
 	webHandler.Use(gin.Recovery(),
 		middleware.Cors(),
 		middleware.RequestId(),
+		middleware.RequestTime(),
 		middleware.GinLog(),
 		middleware.ResponseTime(),
 	)
