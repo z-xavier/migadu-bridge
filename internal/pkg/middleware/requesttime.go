@@ -12,6 +12,5 @@ import (
 func RequestTime() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set(common.XRequestTime, time.Now())
-		c.Next()
 	}
 }
