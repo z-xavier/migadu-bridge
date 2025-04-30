@@ -48,9 +48,13 @@ func (a *aliasBiz) List(ctx *gin.Context, req *v1.ListAliasReq) (*v1.ListAliasRe
 			if total > start && total <= end {
 				id++
 				aliasList = append(aliasList, &v1.Alias{
-					Id:          id,
-					TargetEmail: destination,
-					Alias:       alias.Address,
+					Id:               id,
+					TargetEmail:      destination,
+					Alias:            alias.Address,
+					Expireable:       alias.Expireable,
+					ExpiresOn:        alias.ExpiresOn,
+					IsInternal:       alias.IsInternal,
+					RemoveUponExpiry: alias.RemoveUponExpiry,
 				})
 				targetEmailList = append(targetEmailList, destination)
 			}
@@ -96,6 +100,7 @@ func (a *aliasBiz) List(ctx *gin.Context, req *v1.ListAliasReq) (*v1.ListAliasRe
 				alias.MockProvider = token.MockProvider
 			}
 			alias.Description = log.Description
+			alias.RequestAt = log.RequestAt.Unix()
 		}
 	}
 
