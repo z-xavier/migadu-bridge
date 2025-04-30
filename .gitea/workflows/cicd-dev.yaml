@@ -68,7 +68,8 @@ jobs:
         with:
           context: .
           file: ./docker/Dockerfile-Copy-Dist
-          platforms: linux/amd64,linux/arm64
+#         platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: ${{ vars.DOCKER_REGISTRY }}/xavier/migadu-bridge:dev
           build-args: |
