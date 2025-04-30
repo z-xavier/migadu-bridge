@@ -95,6 +95,7 @@ func (a *aliasBiz) List(ctx *gin.Context, req *v1.ListAliasReq) (*v1.ListAliasRe
 			if token, ok := targetMap[log.TokenId]; ok {
 				alias.MockProvider = token.MockProvider
 			}
+			alias.Description = log.Description
 		}
 	}
 
