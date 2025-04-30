@@ -11,8 +11,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	sloggin "github.com/samber/slog-gin"
 	"github.com/spf13/cobra"
 
+	"migadu-bridge/internal/pkg/common"
 	"migadu-bridge/internal/pkg/config"
 	"migadu-bridge/internal/pkg/log"
 	"migadu-bridge/internal/pkg/middleware"
@@ -67,6 +69,9 @@ func run() error {
 	if err := initStore(); err != nil {
 		return err
 	}
+
+	// 初始化 sloggin 的 RequestIDKey
+	sloggin.RequestIDKey = common.XRequestIDKey
 
 	// 创建 Gin 内部服务器
 	interiorWebHandler := gin.New()
