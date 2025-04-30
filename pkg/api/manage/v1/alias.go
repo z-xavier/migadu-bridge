@@ -9,6 +9,7 @@ type Alias struct {
 	CallLogId    string            `json:"callLogId"`
 	TokenId      string            `json:"tokenId"`
 	MockProvider enum.ProviderEnum `json:"mockProvider"`
+	Description  string            `json:"description"`
 }
 
 type ListAliasReq struct {
