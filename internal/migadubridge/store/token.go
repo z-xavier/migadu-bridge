@@ -39,7 +39,7 @@ func (t *tokenStore) Create(ctx context.Context, token *model.Token) (string, er
 }
 
 func (t *tokenStore) DeleteById(ctx context.Context, id string) error {
-	if err := t.db.WithContext(ctx).Model(&model.Token{}).Delete("id", id).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := t.db.WithContext(ctx).Where("id", id).Delete(&model.Token{}).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
 	return nil
