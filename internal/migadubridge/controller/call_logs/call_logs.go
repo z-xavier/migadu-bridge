@@ -33,6 +33,7 @@ func New(ds store.IStore) *Controller {
 // @Param orderBy query []string false "Order by fields"
 // @Param targetEmail query string false "Filter by target email"
 // @Param mockProvider query string false "Filter by mock provider"
+// @Param description query string false "Filter by description"
 // @Param requestPath query string false "Filter by request path"
 // @Param requestIp query string false "Filter by request IP"
 // @Param requestAtBegin query int64 false "Filter by request time (begin)"

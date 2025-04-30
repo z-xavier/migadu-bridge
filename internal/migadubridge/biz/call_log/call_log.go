@@ -41,6 +41,10 @@ func (c *callLogBiz) List(context *gin.Context, req *v1.ListCallLogReq) (*v1.Lis
 		cond["tokens.mock_provider = ?"] = []any{req.MockProvider}
 	}
 
+	if req.Description != "" {
+		cond["call_logs.description like ?"] = []any{"%" + req.Description + "%"}
+	}
+
 	if req.RequestPath != "" {
 		cond["call_logs.request_path like ?"] = []any{"%" + req.RequestPath + "%"}
 	}
@@ -85,6 +89,7 @@ func (c *callLogBiz) List(context *gin.Context, req *v1.ListCallLogReq) (*v1.Lis
 			TargetEmail:  cast.ToString(tmp["tokens.target_email"]),
 			MockProvider: enum.ProviderEnum(cast.ToString(tmp["tokens.mock_provider"])),
 			GenAlias:     cast.ToString(tmp["call_logs.gen_alias"]),
+			Description:  cast.ToString(tmp["call_logs.description"]),
 			RequestPath:  cast.ToString(tmp["call_logs.request_path"]),
 			RequestIp:    cast.ToString(tmp["call_logs.request_ip"]),
 			RequestAt:    cast.ToTime(tmp["call_logs.request_at"]).Unix(),
