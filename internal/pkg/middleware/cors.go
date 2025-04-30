@@ -8,7 +8,7 @@ import (
 // Cors 是一个 Gin 中间件，用来设置 options 请求的返回头，然后退出中间件链，并结束请求(浏览器跨域设置).
 func Cors() gin.HandlerFunc {
 	config := cors.DefaultConfig()
-	config.AllowHeaders = append(config.AllowHeaders, "authorization")
+	config.AllowHeaders = append(config.AllowHeaders, "Authorization")
 	config.AllowAllOrigins = true
 	return cors.New(config)
 }
