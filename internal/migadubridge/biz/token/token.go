@@ -132,10 +132,10 @@ func (t *tokenBiz) List(ctx *gin.Context, req *v1.ListTokenReq) (*v1.ListTokenRe
 
 	cond := map[string][]any{}
 	if req.TargetEmail != "" {
-		cond["targetEmail like ?"] = []any{"%" + req.TargetEmail + "%"}
+		cond["target_email like ?"] = []any{"%" + req.TargetEmail + "%"}
 	}
 	if req.MockProvider != "" {
-		cond["mockProvider = ?"] = []any{req.MockProvider}
+		cond["mock_provider = ?"] = []any{req.MockProvider}
 	}
 	if req.Description != "" {
 		cond["description like ?"] = []any{"%" + req.Description + "%"}
