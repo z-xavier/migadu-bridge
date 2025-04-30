@@ -1,3 +1,4 @@
+// Package aliases implements the aliases API endpoints
 package aliases
 
 import (
@@ -21,6 +22,19 @@ func New(ds store.IStore) *Controller {
 	}
 }
 
+// List godoc
+// @Summary List aliases
+// @Description Get a list of aliases with pagination
+// @Tags aliases
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1) minimum(1)
+// @Param pageSize query int false "Page size" default(10) minimum(1) maximum(200)
+// @Param orderBy query []string false "Order by fields"
+// @Success 200 {object} v1.ListAliasResp "Success"
+// @Failure 400 {object} v1.Response "Bad request"
+// @Failure 500 {object} v1.Response "Internal server error"
+// @Router /api/v1/aliases [get]
 func (ac *Controller) List(c *gin.Context) (any, error) {
 	log.C(c).Info("list aliasese begin")
 

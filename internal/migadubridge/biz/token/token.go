@@ -1,17 +1,19 @@
 package token
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/xid"
 	"gorm.io/gorm"
 
 	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/errmsg"
+	"migadu-bridge/internal/pkg/log"
 	"migadu-bridge/internal/pkg/model"
 	"migadu-bridge/pkg/api/enum"
 	v1 "migadu-bridge/pkg/api/manage/v1"
@@ -34,12 +36,23 @@ func New(ds store.IStore) Biz {
 	return &tokenBiz{ds: ds}
 }
 
-func (t *tokenBiz) genToken() string {
-	return xid.New().String() + xid.New().String()
+func (t *tokenBiz) genToken() (string, error) {
+	// 生成 32 字节 ( 256 位 ) 的随机数据
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		// 在实际应用中应妥善处理错误
+		return "", err
+	}
+	// 使用URL安全的base64编码
+	return base64.URLEncoding.EncodeToString(b), nil
 }
 
 func (t *tokenBiz) Create(ctx *gin.Context, createToken *v1.CreateTokenReq) (*v1.Token, error) {
-	token := t.genToken()
+	token, err := t.genToken()
+	if err != nil {
+		log.C(ctx).WithError(err).Error("gen token error")
+		return nil, err
+	}
 
 	id, err := t.ds.Token().Create(ctx, &model.Token{
 		TargetEmail:  createToken.TargetEmail,

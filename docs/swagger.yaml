@@ -1,0 +1,768 @@
+definitions:
+  addy.Alias:
+    properties:
+      active:
+        type: boolean
+      aliasable_id: {}
+      aliasable_type: {}
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      domain:
+        type: string
+      email:
+        type: string
+      emails_blocked:
+        type: integer
+      emails_forwarded:
+        type: integer
+      emails_replied:
+        type: integer
+      emails_sent:
+        type: integer
+      extension: {}
+      from_name: {}
+      id:
+        type: string
+      last_blocked: {}
+      last_forwarded:
+        type: string
+      last_replied: {}
+      last_sent: {}
+      local_part:
+        type: string
+      recipients:
+        items: {}
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  addy.AliasFormat:
+    enum:
+    - random_characters
+    - uuid
+    - random_words
+    - custom
+    type: string
+    x-enum-varnames:
+    - AliasFormatRandomCharacters
+    - AliasFormatUUID
+    - AliasFormatRandomWords
+    - AliasFormatCustom
+  addy.CreateAliasReq:
+    properties:
+      authorization:
+        type: string
+      description:
+        type: string
+      domain:
+        type: string
+      format:
+        $ref: '#/definitions/addy.AliasFormat'
+      local_part:
+        type: string
+      recipient_ids:
+        items:
+          type: string
+        type: array
+      xrequestedWith:
+        type: string
+    type: object
+  addy.CreateAliasResp:
+    properties:
+      data:
+        $ref: '#/definitions/addy.Alias'
+    type: object
+  addy.ErrorResp:
+    properties:
+      error:
+        type: string
+    type: object
+  enum.ProviderEnum:
+    enum:
+    - addy
+    - sl
+    type: string
+    x-enum-varnames:
+    - ProviderEnumAddy
+    - ProviderEnumSimpleLogin
+  enum.TokenStatus:
+    enum:
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - TokenStatusInactive
+    - TokenStatusActive
+    - TokenStatusPause
+  sl.Alias:
+    properties:
+      creation_date:
+        type: string
+      creation_timestamp:
+        type: integer
+      email:
+        type: string
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      latest_activity:
+        $ref: '#/definitions/sl.LatestActivity'
+      mailbox:
+        $ref: '#/definitions/sl.MailBox'
+      mailboxes:
+        items:
+          $ref: '#/definitions/sl.MailBox'
+        type: array
+      name:
+        type: string
+      nb_block:
+        type: integer
+      nb_forward:
+        type: integer
+      nb_reply:
+        type: integer
+      note: {}
+      pinned:
+        type: boolean
+    type: object
+  sl.AliasRandomNewReq:
+    properties:
+      authentication:
+        type: string
+      hostname:
+        type: string
+      note:
+        type: string
+      uuid:
+        type: string
+      word:
+        type: string
+    type: object
+  sl.ErrorResp:
+    properties:
+      error:
+        type: string
+    type: object
+  sl.LatestActivity:
+    properties:
+      action:
+        type: string
+      contact:
+        $ref: '#/definitions/sl.LatestActivityContact'
+      timestamp:
+        type: integer
+    type: object
+  sl.LatestActivityContact:
+    properties:
+      email:
+        type: string
+      name: {}
+      reverse_alias:
+        type: string
+    type: object
+  sl.MailBox:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+    type: object
+  v1.Alias:
+    properties:
+      alias:
+        type: string
+      callLogId:
+        type: string
+      id:
+        type: integer
+      mockProvider:
+        $ref: '#/definitions/enum.ProviderEnum'
+      targetEmail:
+        type: string
+      tokenId:
+        type: string
+    type: object
+  v1.CallLog:
+    properties:
+      description:
+        type: string
+      genAlias:
+        type: string
+      id:
+        type: string
+      mockProvider:
+        $ref: '#/definitions/enum.ProviderEnum'
+      requestAt:
+        type: integer
+      requestIp:
+        type: string
+      requestPath:
+        type: string
+      targetEmail:
+        type: string
+      tokenId:
+        type: string
+    type: object
+  v1.CreateTokenReq:
+    properties:
+      description:
+        maxLength: 1024
+        type: string
+      expiryAt:
+        minimum: 0
+        type: integer
+      mockProvider:
+        $ref: '#/definitions/enum.ProviderEnum'
+      targetEmail:
+        type: string
+    required:
+    - expiryAt
+    - mockProvider
+    - targetEmail
+    type: object
+  v1.ListAliasResp:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/v1.Alias'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  v1.ListCallLogResp:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/v1.CallLog'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  v1.ListTokenResp:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/v1.Token'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  v1.PatchTokenReq:
+    properties:
+      status:
+        $ref: '#/definitions/enum.TokenStatus'
+    type: object
+  v1.PutTokenReq:
+    properties:
+      description:
+        type: string
+      expiryAt:
+        type: integer
+    type: object
+  v1.Response:
+    properties:
+      code:
+        description: Code 指定了业务错误码.
+        type: string
+      data:
+        description: Data 包含了
+      message:
+        description: Message 包含了可以直接对外展示的错误信息.
+        type: string
+    type: object
+  v1.Token:
+    properties:
+      createdAt:
+        type: integer
+      description:
+        type: string
+      expiryAt:
+        type: integer
+      id:
+        type: string
+      lastCalledAt:
+        type: integer
+      mockProvider:
+        $ref: '#/definitions/enum.ProviderEnum'
+      status:
+        $ref: '#/definitions/enum.TokenStatus'
+      targetEmail:
+        type: string
+      token:
+        type: string
+      updatedAt:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /api/alias/random/new:
+    post:
+      consumes:
+      - application/json
+      description: Create a new random email alias using the SimpleLogin API
+      parameters:
+      - description: API Key
+        in: header
+        name: Authentication
+        required: true
+        type: string
+      - description: Alias mode
+        in: query
+        name: mode
+        type: string
+      - description: Alias creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/sl.AliasRandomNewReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/sl.Alias'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/sl.ErrorResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/sl.ErrorResp'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/sl.ErrorResp'
+      summary: Create a random alias for SimpleLogin
+      tags:
+      - bridges
+  /api/v1/aliases:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of aliases with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        maximum: 200
+        minimum: 1
+        name: pageSize
+        type: integer
+      - collectionFormat: csv
+        description: Order by fields
+        in: query
+        items:
+          type: string
+        name: orderBy
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/v1.ListAliasResp'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: List aliases
+      tags:
+      - aliases
+    post:
+      consumes:
+      - application/json
+      description: Create a new email alias using the Addy.io API
+      parameters:
+      - description: API Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Alias creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/addy.CreateAliasReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/addy.CreateAliasResp'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/addy.ErrorResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/addy.ErrorResp'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/addy.ErrorResp'
+      summary: Create an alias for Addy.io
+      tags:
+      - bridges
+  /api/v1/calllogs:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of call logs with pagination and filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        maximum: 200
+        minimum: 1
+        name: pageSize
+        type: integer
+      - collectionFormat: csv
+        description: Order by fields
+        in: query
+        items:
+          type: string
+        name: orderBy
+        type: array
+      - description: Filter by target email
+        in: query
+        name: targetEmail
+        type: string
+      - description: Filter by mock provider
+        in: query
+        name: mockProvider
+        type: string
+      - description: Filter by description
+        in: query
+        name: description
+        type: string
+      - description: Filter by request path
+        in: query
+        name: requestPath
+        type: string
+      - description: Filter by request IP
+        in: query
+        name: requestIp
+        type: string
+      - description: Filter by request time (begin)
+        in: query
+        name: requestAtBegin
+        type: integer
+      - description: Filter by request time (end)
+        in: query
+        name: requestAtEnd
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/v1.ListCallLogResp'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: List call logs
+      tags:
+      - call-logs
+  /api/v1/tokens:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of tokens with pagination and filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        maximum: 200
+        minimum: 1
+        name: pageSize
+        type: integer
+      - collectionFormat: csv
+        description: Order by fields
+        in: query
+        items:
+          type: string
+        name: orderBy
+        type: array
+      - description: Filter by target email
+        in: query
+        name: targetEmail
+        type: string
+      - description: Filter by mock provider
+        in: query
+        name: mockProvider
+        type: string
+      - description: Filter by description
+        in: query
+        name: description
+        type: string
+      - description: Filter by expiry time (begin)
+        in: query
+        name: expiryAtBegin
+        type: integer
+      - description: Filter by expiry time (end)
+        in: query
+        name: expiryAtEnd
+        type: integer
+      - description: Filter by last called time (begin)
+        in: query
+        name: lastCalledAtBegin
+        type: integer
+      - description: Filter by last called time (end)
+        in: query
+        name: lastCalledAtEnd
+        type: integer
+      - description: Filter by updated time (begin)
+        in: query
+        name: updatedAtBegin
+        type: integer
+      - description: Filter by updated time (end)
+        in: query
+        name: updatedAtEnd
+        type: integer
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/v1.ListTokenResp'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: List tokens
+      tags:
+      - tokens
+    post:
+      consumes:
+      - application/json
+      description: Create a new token for API access
+      parameters:
+      - description: Token creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.CreateTokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/v1.Token'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: Create a new token
+      tags:
+      - tokens
+  /api/v1/tokens/{tokenId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a token by ID
+      parameters:
+      - description: Token ID
+        in: path
+        name: tokenId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "404":
+          description: Token not found
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: Delete a token
+      tags:
+      - tokens
+    get:
+      consumes:
+      - application/json
+      description: Get a token by ID
+      parameters:
+      - description: Token ID
+        in: path
+        name: tokenId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/v1.Token'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "404":
+          description: Token not found
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: Get a token
+      tags:
+      - tokens
+    patch:
+      consumes:
+      - application/json
+      description: Partially update a token by ID
+      parameters:
+      - description: Token ID
+        in: path
+        name: tokenId
+        required: true
+        type: string
+      - description: Token patch request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.PatchTokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/v1.Token'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "404":
+          description: Token not found
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: Partially update a token
+      tags:
+      - tokens
+    put:
+      consumes:
+      - application/json
+      description: Update a token by ID (full update)
+      parameters:
+      - description: Token ID
+        in: path
+        name: tokenId
+        required: true
+        type: string
+      - description: Token update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.PutTokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/v1.Token'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "404":
+          description: Token not found
+          schema:
+            $ref: '#/definitions/v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/v1.Response'
+      summary: Update a token
+      tags:
+      - tokens
+swagger: "2.0"

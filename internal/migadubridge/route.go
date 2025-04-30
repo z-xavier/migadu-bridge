@@ -8,17 +8,19 @@ import (
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
-	mstatic "migadu-bridge/internal/migadubridge/static"
-	"migadu-bridge/pkg/pprof"
-
+	_ "migadu-bridge/docs"
 	"migadu-bridge/internal/migadubridge/controller/aliases"
 	"migadu-bridge/internal/migadubridge/controller/bridges"
 	"migadu-bridge/internal/migadubridge/controller/call_logs"
 	"migadu-bridge/internal/migadubridge/controller/tokens"
+	mstatic "migadu-bridge/internal/migadubridge/static"
 	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/core"
 	"migadu-bridge/internal/pkg/log"
+	"migadu-bridge/pkg/pprof"
 )
 
 var indexContent = sync.OnceValue(func() []byte {
@@ -82,9 +84,12 @@ func installInteriorWebRouters(g *gin.Engine) error {
 	pprof.Register(g)
 	g.GET("/health", func(c *gin.Context) {
 		log.C(c).Info("Healthz function called")
-
-		core.WriteResponse(c, nil, map[string]string{"status": "ok"})
+		c.String(200, "ok")
 	})
+
+	// Swagger documentation
+	//docs.SwaggerInfo.BasePath = "/api/v1"
+	g.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	tc := tokens.New(store.S)
 	cc := call_logs.New(store.S)
