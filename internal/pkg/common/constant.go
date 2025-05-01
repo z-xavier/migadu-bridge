@@ -9,3 +9,7 @@ const (
 const (
 	ParamUriTokenId = "tokenId"
 )
+
+const (
+	AuthorizationBearerSuffix = "Bearer "
+)
