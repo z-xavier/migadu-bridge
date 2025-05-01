@@ -49,6 +49,7 @@ func (b *bridgeBiz) log(c *gin.Context, token *model.Token, desc string) (string
 		Description: desc,
 		RequestPath: c.Request.URL.Path,
 		RequestAt:   c.GetTime(common.XRequestTime),
+		RequestIp:   c.GetString(common.XRequestIDKey),
 	})
 	if err != nil {
 		log.C(c).WithError(err).Error("Biz CreateCallLog")
