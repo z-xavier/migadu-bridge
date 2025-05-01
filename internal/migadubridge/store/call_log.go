@@ -39,7 +39,15 @@ func (t *callLogStore) Update(ctx context.Context, id string, callLog *model.Cal
 func (t *callLogStore) ListAndTokenWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []map[string]any, error) {
 	db := t.db.WithContext(ctx).Model(&model.CallLog{}).
 		Joins("LEFT JOIN `tokens` ON `call_logs`.`token_id` = `tokens`.`id` AND `tokens`.`deleted_at` IS NULL").
-		Select("call_logs.id, call_logs.request_path, call_logs.gen_alias, call_logs.request_ip, call_logs.request_at, tokens.id, tokens.target_email, tokens.mock_provider")
+		Select("call_logs.id AS call_log_id, " +
+			"call_logs.request_path, " +
+			"call_logs.gen_alias, " +
+			"call_logs.description, " +
+			"call_logs.request_ip, " +
+			"call_logs.request_at, " +
+			"tokens.id AS token_id, " +
+			"tokens.target_email, " +
+			"tokens.mock_provider")
 
 	if cond != nil {
 		for k, v := range cond {

@@ -29,7 +29,7 @@ func New(ds store.IStore) Biz {
 
 func (c *callLogBiz) List(context *gin.Context, req *v1.ListCallLogReq) (*v1.ListCallLogResp, error) {
 	if len(req.OrderBy) == 0 {
-		req.OrderBy = []string{"updated_at:desc"}
+		req.OrderBy = []string{"updated_at:DESC"}
 	}
 
 	cond := map[string][]any{}
@@ -84,15 +84,15 @@ func (c *callLogBiz) List(context *gin.Context, req *v1.ListCallLogReq) (*v1.Lis
 	callLogs := make([]*v1.CallLog, 0, len(dbModels))
 	for _, tmp := range dbModels {
 		callLogs = append(callLogs, &v1.CallLog{
-			Id:           cast.ToString(tmp["call_logs.id"]),
-			TokenId:      cast.ToString(tmp["tokens.id"]),
-			TargetEmail:  cast.ToString(tmp["tokens.target_email"]),
-			MockProvider: enum.ProviderEnum(cast.ToString(tmp["tokens.mock_provider"])),
-			GenAlias:     cast.ToString(tmp["call_logs.gen_alias"]),
-			Description:  cast.ToString(tmp["call_logs.description"]),
-			RequestPath:  cast.ToString(tmp["call_logs.request_path"]),
-			RequestIp:    cast.ToString(tmp["call_logs.request_ip"]),
-			RequestAt:    cast.ToTime(tmp["call_logs.request_at"]).Unix(),
+			Id:           cast.ToString(tmp["call_log_id"]),
+			TokenId:      cast.ToString(tmp["token_id"]),
+			TargetEmail:  cast.ToString(tmp["target_email"]),
+			MockProvider: enum.ProviderEnum(cast.ToString(tmp["mock_provider"])),
+			GenAlias:     cast.ToString(tmp["gen_alias"]),
+			Description:  cast.ToString(tmp["description"]),
+			RequestPath:  cast.ToString(tmp["request_path"]),
+			RequestIp:    cast.ToString(tmp["request_ip"]),
+			RequestAt:    cast.ToTime(tmp["request_at"]).Unix(),
 		})
 	}
 

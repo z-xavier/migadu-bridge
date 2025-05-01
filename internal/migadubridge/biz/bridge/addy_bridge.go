@@ -25,7 +25,7 @@ func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy
 		return nil, http.StatusUnauthorized, errors.New("token is nil")
 	}
 
-	token, err := b.checkToken(c, enum.ProviderEnumAddy, strings.TrimSuffix(req.Authorization, common.AuthorizationBearerSuffix))
+	token, err := b.checkToken(c, enum.ProviderEnumAddy, strings.TrimPrefix(req.Authorization, common.AuthorizationBearerSuffix))
 	if err != nil {
 		log.C(c).WithError(err).Error("AddyAliases checkToken")
 		return nil, http.StatusUnauthorized, errors.New("check token error")
@@ -50,24 +50,17 @@ func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy
 	var localPart string
 	switch req.Format {
 	case addy.AliasFormatRandomCharacters:
-		{
-			localPart = xid.New().String()
-		}
-	case addy.AliasFormatRandomWords:
-		{
-			localPart, err = rwords.GetGetRWordsDefault()
-			if err != nil {
-				log.C(c).WithError(err).Error("Biz GetRWords")
-				return nil, http.StatusBadRequest, err
-			}
-		}
+		localPart = xid.New().String()
 	case addy.AliasFormatUUID:
-		{
-			localPart = uuid.NewString()
-		}
+		localPart = uuid.NewString()
 	case addy.AliasFormatCustom:
-		{
-			localPart = req.LocalPart
+		localPart = req.LocalPart
+	//case addy.AliasFormatRandomWords:
+	default:
+		localPart, err = rwords.GetGetRWordsDefault()
+		if err != nil {
+			log.C(c).WithError(err).Error("Biz GetRWords")
+			return nil, http.StatusBadRequest, err
 		}
 	}
 	if localPart == "" {
