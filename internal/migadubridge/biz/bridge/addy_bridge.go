@@ -24,10 +24,6 @@ func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy
 		log.C(c).Error("Biz AddyAliases token is nil")
 		return nil, http.StatusUnauthorized, errors.New("token is nil")
 	}
-	if req.XRequestedWith != "XMLHttpRequest" {
-		log.C(c).Error("Biz AddyAliases XRequestedWith is nil")
-		return nil, http.StatusBadRequest, errors.New("XRequestedWith not eq XMLHttpRequest")
-	}
 
 	token, err := b.checkToken(c, enum.ProviderEnumAddy, req.Authorization)
 	if err != nil {
