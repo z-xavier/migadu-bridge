@@ -9,5 +9,6 @@ import (
 func Cors() gin.HandlerFunc {
 	config := cors.DefaultConfig()
 	config.AllowHeaders = append(config.AllowHeaders, "Authorization")
+	config.AllowAllOrigins = true
 	return cors.New(config)
 }
