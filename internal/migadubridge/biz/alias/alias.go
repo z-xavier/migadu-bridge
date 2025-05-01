@@ -13,6 +13,7 @@ import (
 
 type Biz interface {
 	List(*gin.Context, *v1.ListAliasReq) (*v1.ListAliasResp, error)
+	Delete(*gin.Context, string) error
 }
 
 type aliasBiz struct {
@@ -112,4 +113,12 @@ func (a *aliasBiz) List(ctx *gin.Context, req *v1.ListAliasReq) (*v1.ListAliasRe
 		},
 		List: aliasList,
 	}, nil
+}
+
+func (a *aliasBiz) Delete(ctx *gin.Context, alias string) error {
+	client, err := migadu.MigaduClient()
+	if err != nil {
+		return err
+	}
+	return client.DeleteAlias(ctx, alias)
 }

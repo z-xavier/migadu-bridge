@@ -115,6 +115,7 @@ func installInteriorWebRouters(g *gin.Engine) error {
 		aliasV1 := v1.Group("/aliases")
 		{
 			aliasV1.GET("", core.HandleResult(ac.List))
+			aliasV1.DELETE(":alias", core.HandleResult(ac.Delete))
 		}
 	}
 

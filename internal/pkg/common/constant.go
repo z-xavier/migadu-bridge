@@ -8,6 +8,7 @@ const (
 
 const (
 	ParamUriTokenId = "tokenId"
+	ParamUriAlias   = "alias"
 )
 
 const (

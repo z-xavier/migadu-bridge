@@ -6,6 +6,7 @@ import (
 
 	"migadu-bridge/internal/migadubridge/biz"
 	"migadu-bridge/internal/migadubridge/store"
+	"migadu-bridge/internal/pkg/common"
 	"migadu-bridge/internal/pkg/errmsg"
 	"migadu-bridge/internal/pkg/log"
 	v1 "migadu-bridge/pkg/api/manage/v1"
@@ -45,4 +46,28 @@ func (ac *Controller) List(c *gin.Context) (any, error) {
 	}
 
 	return ac.b.Alias().List(c, &r)
+}
+
+// Delete godoc
+// @Summary Delete a alias
+// @Description Delete a alias by ID
+// @Tags tokens
+// @Accept json
+// @Produce json
+// @Param alias path string true "Alias"
+// @Success 200 {object} nil "Success"
+// @Failure 400 {object} v1.Response "Bad request"
+// @Failure 404 {object} v1.Response "Token not found"
+// @Failure 500 {object} v1.Response "Internal server error"
+// @Router /api/v1/alias/{alias} [delete]
+func (ac *Controller) Delete(c *gin.Context) (any, error) {
+	log.C(c).Info("delete alias begin")
+
+	alias := c.Param(common.ParamUriAlias)
+	if alias == "" {
+		log.C(c).Error("alias is empty")
+		return nil, errmsg.ErrBind.SetMessage("alias is required")
+	}
+
+	return nil, ac.b.Alias().Delete(c, alias)
 }
