@@ -25,7 +25,7 @@ func (b *bridgeBiz) AddyAliases(c *gin.Context, req *addy.CreateAliasReq) (*addy
 		return nil, http.StatusUnauthorized, errors.New("token is nil")
 	}
 
-	token, err := b.checkToken(c, enum.ProviderEnumAddy, req.Authorization)
+	token, err := b.checkToken(c, enum.ProviderEnumAddy, strings.TrimSuffix(req.Authorization, common.AuthorizationBearerSuffix))
 	if err != nil {
 		log.C(c).WithError(err).Error("AddyAliases checkToken")
 		return nil, http.StatusUnauthorized, errors.New("check token error")
