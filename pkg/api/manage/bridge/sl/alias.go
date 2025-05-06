@@ -9,21 +9,25 @@ type AliasRandomNewReq struct {
 }
 
 // Alias https://github.com/simple-login/app/blob/master/docs/api.md#get-apialiasesalias_id
+// 实际接口返回与文档相比，需要添加部分字段
 type Alias struct {
-	CreationDate      string         `json:"creation_date"`
+	Alias             string         `json:"alias"`         // like email
+	CreationDate      string         `json:"creation_date"` // "2025-05-06 03:43:06+00:00"
 	CreationTimestamp int64          `json:"creation_timestamp"`
+	DisablePgp        bool           `json:"disable_pgp"`
 	Email             string         `json:"email"`
 	Name              string         `json:"name"`
 	Enabled           bool           `json:"enabled"`
-	Id                int64          `json:"id"`
+	Id                int64          `json:"id"` // 27229827
 	Mailbox           MailBox        `json:"mailbox"`
-	Mailboxes         []MailBox      `json:"mailboxes"`
+	Mailboxes         []MailBox      `json:"mailboxes"` // 与 Mailbox 同时出现
 	LatestActivity    LatestActivity `json:"latest_activity"`
 	NbBlock           int            `json:"nb_block"`
 	NbForward         int            `json:"nb_forward"`
 	NbReply           int            `json:"nb_reply"`
-	Note              any            `json:"note"`
+	Note              string         `json:"note"`
 	Pinned            bool           `json:"pinned"`
+	SupportPgp        bool           `json:"support_pgp"`
 }
 
 type MailBox struct {

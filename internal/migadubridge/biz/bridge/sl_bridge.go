@@ -82,17 +82,22 @@ func (b *bridgeBiz) SLAliasRandomNew(c *gin.Context, req *sl.AliasRandomNewReq) 
 		return nil, http.StatusBadRequest, err
 	}
 
+	mailbox := sl.MailBox{
+		Email: token.TargetEmail,
+		Id:    1,
+	}
+
 	now := time.Now()
 	return &sl.Alias{
+		Alias:             alias.Address,
 		CreationDate:      now.Format("2006-01-02 15:04:05-07:00"),
 		CreationTimestamp: now.Unix(),
 		Email:             alias.Address,
 		Name:              localPart,
 		Enabled:           true,
 		Id:                1,
-		Mailbox: sl.MailBox{
-			Email: token.TargetEmail,
-		},
-		Note: req.Note,
+		Mailbox:           mailbox,
+		Mailboxes:         []sl.MailBox{mailbox},
+		Note:              req.Note,
 	}, http.StatusCreated, nil
 }
