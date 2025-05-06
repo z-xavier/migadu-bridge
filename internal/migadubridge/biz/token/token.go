@@ -202,10 +202,8 @@ func (t *tokenBiz) Get(ctx *gin.Context, id string) (*v1.Token, error) {
 
 func (t *tokenBiz) transModelToVo(token *model.Token) *v1.Token {
 	var lastCalledUnix int64
-	if lastCalledAt, _ := token.LastCalledAt.Value(); lastCalledAt != nil {
-		if t, ok := lastCalledAt.(time.Time); ok {
-			lastCalledAt = t.Unix()
-		}
+	if token.LastCalledAt.Valid {
+		lastCalledUnix = token.LastCalledAt.Time.Unix()
 	}
 
 	return &v1.Token{
