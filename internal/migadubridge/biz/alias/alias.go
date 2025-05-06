@@ -11,15 +11,16 @@ import (
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-type AliasBiz interface {
+type Biz interface {
 	List(*gin.Context, *v1.ListAliasReq) (*v1.ListAliasResp, error)
+	Delete(*gin.Context, string) error
 }
 
 type aliasBiz struct {
 	ds store.IStore
 }
 
-func New(ds store.IStore) AliasBiz {
+func New(ds store.IStore) Biz {
 	return &aliasBiz{ds: ds}
 }
 
@@ -48,9 +49,13 @@ func (a *aliasBiz) List(ctx *gin.Context, req *v1.ListAliasReq) (*v1.ListAliasRe
 			if total > start && total <= end {
 				id++
 				aliasList = append(aliasList, &v1.Alias{
-					Id:          id,
-					TargetEmail: destination,
-					Alias:       alias.Address,
+					Id:               id,
+					TargetEmail:      destination,
+					Alias:            alias.Address,
+					Expireable:       alias.Expireable,
+					ExpiresOn:        alias.ExpiresOn,
+					IsInternal:       alias.IsInternal,
+					RemoveUponExpiry: alias.RemoveUponExpiry,
 				})
 				targetEmailList = append(targetEmailList, destination)
 			}
@@ -95,6 +100,8 @@ func (a *aliasBiz) List(ctx *gin.Context, req *v1.ListAliasReq) (*v1.ListAliasRe
 			if token, ok := targetMap[log.TokenId]; ok {
 				alias.MockProvider = token.MockProvider
 			}
+			alias.Description = log.Description
+			alias.RequestAt = log.RequestAt.Unix()
 		}
 	}
 
@@ -106,4 +113,12 @@ func (a *aliasBiz) List(ctx *gin.Context, req *v1.ListAliasReq) (*v1.ListAliasRe
 		},
 		List: aliasList,
 	}, nil
+}
+
+func (a *aliasBiz) Delete(ctx *gin.Context, alias string) error {
+	client, err := migadu.MigaduClient()
+	if err != nil {
+		return err
+	}
+	return client.DeleteAlias(ctx, alias)
 }

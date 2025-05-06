@@ -1,23 +1,25 @@
 package token
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/xid"
 	"gorm.io/gorm"
 
 	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/errmsg"
+	"migadu-bridge/internal/pkg/log"
 	"migadu-bridge/internal/pkg/model"
 	"migadu-bridge/pkg/api/enum"
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-type TokenBiz interface {
+type Biz interface {
 	Create(*gin.Context, *v1.CreateTokenReq) (*v1.Token, error)
 	Delete(*gin.Context, string) error
 	Put(*gin.Context, string, *v1.PutTokenReq) (*v1.Token, error)
@@ -30,16 +32,27 @@ type tokenBiz struct {
 	ds store.IStore
 }
 
-func New(ds store.IStore) TokenBiz {
+func New(ds store.IStore) Biz {
 	return &tokenBiz{ds: ds}
 }
 
-func (t *tokenBiz) genToken() string {
-	return xid.New().String() + xid.New().String()
+func (t *tokenBiz) genToken() (string, error) {
+	// 生成 32 字节 ( 256 位 ) 的随机数据
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		// 在实际应用中应妥善处理错误
+		return "", err
+	}
+	// 使用URL安全的base64编码
+	return base64.URLEncoding.EncodeToString(b), nil
 }
 
 func (t *tokenBiz) Create(ctx *gin.Context, createToken *v1.CreateTokenReq) (*v1.Token, error) {
-	token := t.genToken()
+	token, err := t.genToken()
+	if err != nil {
+		log.C(ctx).WithError(err).Error("gen token error")
+		return nil, err
+	}
 
 	id, err := t.ds.Token().Create(ctx, &model.Token{
 		TargetEmail:  createToken.TargetEmail,
@@ -119,10 +132,10 @@ func (t *tokenBiz) List(ctx *gin.Context, req *v1.ListTokenReq) (*v1.ListTokenRe
 
 	cond := map[string][]any{}
 	if req.TargetEmail != "" {
-		cond["targetEmail like ?"] = []any{"%" + req.TargetEmail + "%"}
+		cond["target_email like ?"] = []any{"%" + req.TargetEmail + "%"}
 	}
 	if req.MockProvider != "" {
-		cond["mockProvider = ?"] = []any{req.MockProvider}
+		cond["mock_provider = ?"] = []any{req.MockProvider}
 	}
 	if req.Description != "" {
 		cond["description like ?"] = []any{"%" + req.Description + "%"}
@@ -189,10 +202,8 @@ func (t *tokenBiz) Get(ctx *gin.Context, id string) (*v1.Token, error) {
 
 func (t *tokenBiz) transModelToVo(token *model.Token) *v1.Token {
 	var lastCalledUnix int64
-	if lastCalledAt, _ := token.LastCalledAt.Value(); lastCalledAt != nil {
-		if t, ok := lastCalledAt.(time.Time); ok {
-			lastCalledAt = t.Unix()
-		}
+	if token.LastCalledAt.Valid {
+		lastCalledUnix = token.LastCalledAt.Time.Unix()
 	}
 
 	return &v1.Token{

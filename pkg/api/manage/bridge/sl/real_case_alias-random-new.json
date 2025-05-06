@@ -1,0 +1,27 @@
+{
+  "alias": "external_activist123123@slmails.com",
+  "creation_date": "2025-05-06 03:43:06+00:00",
+  "creation_timestamp": 1746502986,
+  "disable_pgp": false,
+  "email": "external_activist123123@slmails.com",
+  "enabled": true,
+  "id": 12345678,
+  "latest_activity": null,
+  "mailbox": {
+    "email": "test_mail@protonmail.com",
+    "id": 1234567
+  },
+  "mailboxes": [
+    {
+      "email": "test_mail@protonmail.com",
+      "id": 1234567
+    }
+  ],
+  "name": null,
+  "nb_block": 0,
+  "nb_forward": 0,
+  "nb_reply": 0,
+  "note": "\u7531 Bitwarden \u751f\u6210\u3002",
+  "pinned": false,
+  "support_pgp": false
+}

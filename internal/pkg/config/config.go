@@ -17,9 +17,10 @@ type Config struct {
 }
 
 type ServerConf struct {
-	RunMode         string `json:"run-mode" mapstructure:"run-mode"`
-	WebAddr         string `json:"web-addr" mapstructure:"web-addr"`
-	InteriorWebAddr string `json:"interior-web-addr" mapstructure:"interior-web-addr"`
+	RunMode         string   `json:"run-mode" mapstructure:"run-mode"`
+	WebAddr         string   `json:"web-addr" mapstructure:"web-addr"`
+	InteriorWebAddr string   `json:"interior-web-addr" mapstructure:"interior-web-addr"`
+	Domains         []string `json:"domains" mapstructure:"domains"`
 }
 
 type LogConf struct {

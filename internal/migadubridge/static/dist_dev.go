@@ -11,6 +11,6 @@ import (
 // 定义前端静态文件目录路径
 const frontendDistPath = "./frontend/dist"
 
-func GetFS() static.ServeFileSystem {
-	return static.LocalFile(frontendDistPath, false)
+func GetFS() (static.ServeFileSystem, error) {
+	return static.LocalFile(frontendDistPath, false), nil
 }

@@ -3,11 +3,13 @@ package store
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/rs/xid"
 	"gorm.io/gorm"
 
 	"migadu-bridge/internal/pkg/model"
+	"migadu-bridge/pkg/api/enum"
 )
 
 type TokenStore interface {
@@ -15,7 +17,7 @@ type TokenStore interface {
 	DeleteById(ctx context.Context, id string) error
 	UpdateById(ctx context.Context, id string, updates map[string]any) error
 	GetById(ctx context.Context, id string) (*model.Token, error)
-	GetByToken(ctx context.Context, token string) (*model.Token, error) // TODO scanner token
+	GetActiveToken(ctx context.Context, mockProvider enum.ProviderEnum, tokenString string) (*model.Token, error) // TODO scanner token
 	ListByTargetEmail(ctx context.Context, targetEmailList []string) ([]*model.Token, error)
 	ListWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []*model.Token, error)
 }
@@ -37,7 +39,7 @@ func (t *tokenStore) Create(ctx context.Context, token *model.Token) (string, er
 }
 
 func (t *tokenStore) DeleteById(ctx context.Context, id string) error {
-	if err := t.db.WithContext(ctx).Model(&model.Token{}).Delete("id", id).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := t.db.WithContext(ctx).Where("id", id).Delete(&model.Token{}).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
 	return nil
@@ -55,9 +57,17 @@ func (t *tokenStore) GetById(ctx context.Context, id string) (*model.Token, erro
 	return &token, nil
 }
 
-func (t *tokenStore) GetByToken(ctx context.Context, token string) (*model.Token, error) {
-	//TODO implement me
-	panic("implement me")
+func (t *tokenStore) GetActiveToken(ctx context.Context, mockProvider enum.ProviderEnum, tokenString string) (*model.Token, error) {
+	var token model.Token
+	if err := t.db.WithContext(ctx).Model(&model.Token{}).
+		Where("mock_provider = ?", mockProvider).
+		Where("token = ?", tokenString).
+		Where("expiry_at > ?", time.Now()).
+		Where("status != ?", enum.TokenStatusPause).
+		First(&token).Error; err != nil {
+		return nil, err
+	}
+	return &token, nil
 }
 
 func (t *tokenStore) ListByTargetEmail(ctx context.Context, targetEmailList []string) ([]*model.Token, error) {

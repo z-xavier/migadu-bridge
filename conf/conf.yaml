@@ -1,8 +1,8 @@
 # 通用配置
 server:
-  run-mode: "debug"             # Gin 开发模式, 可选值有：debug, release, test
-  web-addr: ":8080"            # HTTP 服务器监听地址
-  interior-web-addr: ":8081"
+  run-mode: "debug"           # Gin 开发模式, 可选值有：debug, release, test
+  web-addr: ":8080"           # HTTP 服务器监听地址
+  interior-web-addr: ":8081"  # HTTP 服务器监听地址
 
 # 数据库相关配置
 db:

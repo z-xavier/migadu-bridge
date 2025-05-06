@@ -12,7 +12,7 @@ RUN cd /frontend && \
     npm run build
 
 # Golang build stage
-FROM docker.io/library/golang:1.24-alpine3.21 AS go-builder
+FROM docker.io/library/golang:1.24-alpine AS go-builder
 
 ARG GOPROXY
 ENV GOPROXY=${GOPROXY:-direct}
@@ -30,7 +30,7 @@ COPY --from=node-builder /frontend/dist ${GOPATH}/src/git.zxavier.com/xavier/mig
 RUN go vet ./... && \
     go build -v -ldflags '-s -w' ./
 
-FROM docker.io/library/alpine:3.21
+FROM docker.io/library/alpine
 
 ARG APK_REPO
 RUN if [ -n "${APK_REPO}" ]; then sed -i "s/dl-cdn.alpinelinux.org/${APK_REPO}/g" /etc/apk/repositories; fi

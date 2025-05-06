@@ -15,7 +15,7 @@ import (
 	v1 "migadu-bridge/pkg/api/manage/v1"
 )
 
-type CallLogBiz interface {
+type Biz interface {
 	List(*gin.Context, *v1.ListCallLogReq) (*v1.ListCallLogResp, error)
 }
 
@@ -23,13 +23,13 @@ type callLogBiz struct {
 	ds store.IStore
 }
 
-func New(ds store.IStore) CallLogBiz {
+func New(ds store.IStore) Biz {
 	return &callLogBiz{ds: ds}
 }
 
 func (c *callLogBiz) List(context *gin.Context, req *v1.ListCallLogReq) (*v1.ListCallLogResp, error) {
 	if len(req.OrderBy) == 0 {
-		req.OrderBy = []string{"updated_at:desc"}
+		req.OrderBy = []string{"updated_at:DESC"}
 	}
 
 	cond := map[string][]any{}
@@ -39,6 +39,10 @@ func (c *callLogBiz) List(context *gin.Context, req *v1.ListCallLogReq) (*v1.Lis
 
 	if req.MockProvider != "" {
 		cond["tokens.mock_provider = ?"] = []any{req.MockProvider}
+	}
+
+	if req.Description != "" {
+		cond["call_logs.description like ?"] = []any{"%" + req.Description + "%"}
 	}
 
 	if req.RequestPath != "" {
@@ -80,14 +84,15 @@ func (c *callLogBiz) List(context *gin.Context, req *v1.ListCallLogReq) (*v1.Lis
 	callLogs := make([]*v1.CallLog, 0, len(dbModels))
 	for _, tmp := range dbModels {
 		callLogs = append(callLogs, &v1.CallLog{
-			Id:           cast.ToString(tmp["call_logs.id"]),
-			TokenId:      cast.ToString(tmp["tokens.id"]),
-			TargetEmail:  cast.ToString(tmp["tokens.target_email"]),
-			MockProvider: enum.ProviderEnum(cast.ToString(tmp["tokens.mock_provider"])),
-			GenAlias:     cast.ToString(tmp["call_logs.gen_alias"]),
-			RequestPath:  cast.ToString(tmp["call_logs.request_path"]),
-			RequestIp:    cast.ToString(tmp["call_logs.request_ip"]),
-			RequestAt:    cast.ToTime(tmp["call_logs.request_at"]).Unix(),
+			Id:           cast.ToString(tmp["call_log_id"]),
+			TokenId:      cast.ToString(tmp["token_id"]),
+			TargetEmail:  cast.ToString(tmp["target_email"]),
+			MockProvider: enum.ProviderEnum(cast.ToString(tmp["mock_provider"])),
+			GenAlias:     cast.ToString(tmp["gen_alias"]),
+			Description:  cast.ToString(tmp["description"]),
+			RequestPath:  cast.ToString(tmp["request_path"]),
+			RequestIp:    cast.ToString(tmp["request_ip"]),
+			RequestAt:    cast.ToTime(tmp["request_at"]).Unix(),
 		})
 	}
 

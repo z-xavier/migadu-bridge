@@ -8,22 +8,30 @@ import (
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
-	mstatic "migadu-bridge/internal/migadubridge/static"
-	"migadu-bridge/pkg/pprof"
-
+	_ "migadu-bridge/docs"
 	"migadu-bridge/internal/migadubridge/controller/aliases"
 	"migadu-bridge/internal/migadubridge/controller/bridges"
 	"migadu-bridge/internal/migadubridge/controller/call_logs"
 	"migadu-bridge/internal/migadubridge/controller/tokens"
+	mstatic "migadu-bridge/internal/migadubridge/static"
 	"migadu-bridge/internal/migadubridge/store"
 	"migadu-bridge/internal/pkg/core"
 	"migadu-bridge/internal/pkg/log"
+	"migadu-bridge/pkg/pprof"
 )
 
 var indexContent = sync.OnceValue(func() []byte {
 	// 在程序启动时读取并缓存 index.html
-	indexFile, err := mstatic.GetFS().Open("index.html")
+	fs, err := mstatic.GetFS()
+	if err != nil {
+		log.WithError(err).Error("failed to get static file system")
+		return nil
+	}
+
+	indexFile, err := fs.Open("index.html")
 	if err != nil {
 		log.WithError(err).Error("failed to open index.html")
 		return nil
@@ -52,7 +60,12 @@ const (
 
 // installInteriorWebRouters Gin 内部服务器
 func installInteriorWebRouters(g *gin.Engine) error {
-	g.Use(static.Serve("/", mstatic.GetFS()))
+	fs, err := mstatic.GetFS()
+	if err != nil {
+		log.WithError(err).Error("failed to get static file system")
+		return nil
+	}
+	g.Use(static.Serve("/", fs))
 
 	// 处理所有未匹配的路由，返回 index.html
 	g.NoRoute(func(c *gin.Context) {
@@ -71,9 +84,12 @@ func installInteriorWebRouters(g *gin.Engine) error {
 	pprof.Register(g)
 	g.GET("/health", func(c *gin.Context) {
 		log.C(c).Info("Healthz function called")
-
-		core.WriteResponse(c, nil, map[string]string{"status": "ok"})
+		c.String(200, "ok")
 	})
+
+	// Swagger documentation
+	//docs.SwaggerInfo.BasePath = "/api/v1"
+	g.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	tc := tokens.New(store.S)
 	cc := call_logs.New(store.S)
@@ -99,6 +115,7 @@ func installInteriorWebRouters(g *gin.Engine) error {
 		aliasV1 := v1.Group("/aliases")
 		{
 			aliasV1.GET("", core.HandleResult(ac.List))
+			aliasV1.DELETE(":alias", core.HandleResult(ac.Delete))
 		}
 	}
 
@@ -113,10 +130,10 @@ func installRouters(g *gin.Engine) error {
 	b := bridges.New(store.S)
 
 	// addyAliases
-	g.Group("/api/v1/aliases").POST("", core.HandleResult(b.AddyAliases))
+	g.Group("/api/v1/aliases").POST("", b.AddyAliases)
 
 	// simplelogin
-	g.Group("/api/alias/random/new").POST("", core.HandleResult(b.Simplelogin))
+	g.Group("/api/alias/random/new").POST("", b.SLAliasRandomNew)
 
 	return nil
 }
