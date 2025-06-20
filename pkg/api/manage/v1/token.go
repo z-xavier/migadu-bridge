@@ -24,20 +24,17 @@ type CreateTokenReq struct {
 	ExpiryAt     int64             `json:"expiryAt" binding:"required,min=0"`
 }
 
-type CreateTokenResp struct {
-	Id    string `json:"id"`
-	Token string `json:"token"`
+type PutTokenReq struct {
+	Description string `json:"description"`
+	ExpiryAt    int64  `json:"expiryAt"`
 }
 
-type UpdateTokenReq struct {
-	Description string           `json:"description"`
-	ExpiryAt    int64            `json:"expiryAt"`
-	Status      enum.TokenStatus `json:"status"`
+type PatchTokenReq struct {
+	Status enum.TokenStatus `json:"status"`
 }
 
 type ListTokenReq struct {
 	PageReqHeader
-	Id                string            `form:"id" json:"id"`
 	TargetEmail       string            `form:"targetEmail" json:"targetEmail"`
 	MockProvider      enum.ProviderEnum `form:"mockProvider" json:"mockProvider"`
 	Description       string            `form:"description" json:"description"`
@@ -45,11 +42,9 @@ type ListTokenReq struct {
 	ExpiryAtEnd       int64             `form:"expiryAtEnd" json:"expiryAtEnd"`
 	LastCalledAtBegin int64             `form:"lastCalledAtBegin" json:"lastCalledAtBegin"`
 	LastCalledAtEnd   int64             `form:"lastCalledAtEnd" json:"lastCalledAtEnd"`
+	UpdatedAtBegin    int64             `form:"updatedAtBegin" json:"updatedAtBegin"`
+	UpdatedAtEnd      int64             `form:"updatedAtEnd" json:"updatedAtEnd"`
 	Status            enum.TokenStatus  `form:"status" json:"status"`
-}
-
-type GetTokenResp struct {
-	Token
 }
 
 type ListTokenResp struct {

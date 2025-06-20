@@ -2,20 +2,24 @@ package store
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"github.com/rs/xid"
 	"gorm.io/gorm"
 
 	"migadu-bridge/internal/pkg/model"
+	"migadu-bridge/pkg/api/enum"
 )
 
 type TokenStore interface {
 	Create(ctx context.Context, token *model.Token) (string, error)
 	DeleteById(ctx context.Context, id string) error
-	UpdateById(ctx context.Context, id string, token *model.Token) error
+	UpdateById(ctx context.Context, id string, updates map[string]any) error
 	GetById(ctx context.Context, id string) (*model.Token, error)
-	GetByToken(ctx context.Context, token string) (*model.Token, error) // TODO scanner token
-	List(ctx context.Context, page, pageSize uint64, cond map[string][]any) (int64, []*model.Token, error)
+	GetActiveToken(ctx context.Context, mockProvider enum.ProviderEnum, tokenString string) (*model.Token, error) // TODO scanner token
+	ListByTargetEmail(ctx context.Context, targetEmailList []string) ([]*model.Token, error)
+	ListWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []*model.Token, error)
 }
 
 type tokenStore struct {
@@ -35,24 +39,48 @@ func (t *tokenStore) Create(ctx context.Context, token *model.Token) (string, er
 }
 
 func (t *tokenStore) DeleteById(ctx context.Context, id string) error {
-	return t.db.WithContext(ctx).Model(&model.Token{}).Delete("id", id).Error
+	if err := t.db.WithContext(ctx).Where("id", id).Delete(&model.Token{}).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	return nil
 }
 
-func (t *tokenStore) UpdateById(ctx context.Context, id string, token *model.Token) error {
-	return t.db.WithContext(ctx).Model(&model.Token{}).Where("id", id).Updates(token).Error
+func (t *tokenStore) UpdateById(ctx context.Context, id string, updates map[string]any) error {
+	return t.db.WithContext(ctx).Model(&model.Token{}).Where("id", id).Updates(updates).Error
 }
 
 func (t *tokenStore) GetById(ctx context.Context, id string) (*model.Token, error) {
-	//TODO implement me
-	panic("implement me")
+	var token model.Token
+	if err := t.db.WithContext(ctx).Model(&model.Token{}).Where("id", id).First(&token).Error; err != nil {
+		return nil, err
+	}
+	return &token, nil
 }
 
-func (t *tokenStore) GetByToken(ctx context.Context, token string) (*model.Token, error) {
-	//TODO implement me
-	panic("implement me")
+func (t *tokenStore) GetActiveToken(ctx context.Context, mockProvider enum.ProviderEnum, tokenString string) (*model.Token, error) {
+	var token model.Token
+	if err := t.db.WithContext(ctx).Model(&model.Token{}).
+		Where("mock_provider = ?", mockProvider).
+		Where("token = ?", tokenString).
+		Where("expiry_at > ?", time.Now()).
+		Where("status != ?", enum.TokenStatusPause).
+		First(&token).Error; err != nil {
+		return nil, err
+	}
+	return &token, nil
 }
 
-func (t *tokenStore) List(ctx context.Context, page, pageSize uint64, cond map[string][]any) (int64, []*model.Token, error) {
+func (t *tokenStore) ListByTargetEmail(ctx context.Context, targetEmailList []string) ([]*model.Token, error) {
+	var tokens []*model.Token
+	if err := t.db.WithContext(ctx).
+		Where("`target_email` IN ?", targetEmailList).
+		Find(&tokens).Error; err != nil {
+		return nil, err
+	}
+	return tokens, nil
+}
+
+func (t *tokenStore) ListWithPage(ctx context.Context, page, pageSize int64, cond map[string][]any, orderBy []any) (int64, []*model.Token, error) {
 	db := t.db.WithContext(ctx).Model(&model.Token{})
 
 	if cond != nil {
@@ -72,8 +100,11 @@ func (t *tokenStore) List(ctx context.Context, page, pageSize uint64, cond map[s
 	}
 
 	var tokens []*model.Token
+
+	for _, o := range orderBy {
+		session = session.Order(o)
+	}
 	if err := session.
-		Order("updated_at DESC").
 		Offset(int((page - 1) * pageSize)).
 		Limit(int(pageSize)).
 		Find(&tokens).Error; err != nil {

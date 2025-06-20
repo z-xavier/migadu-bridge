@@ -2,6 +2,7 @@ package config
 
 import (
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 
@@ -9,36 +10,51 @@ import (
 )
 
 type Config struct {
-	LogConf    *LogConf    `json:"log" yaml:"log"`
-	MigaduConf *MigaduConf `json:"migadu" yaml:"migadu"`
-	ServerConf *ServerConf `json:"server" yaml:"server"`
-}
-
-type LogConf struct {
-	DisableCaller     bool     `json:"disable_caller" yaml:"disable_caller"`
-	DisableStacktrace bool     `json:"disable_stacktrace" yaml:"disable_stacktrace"`
-	Level             string   `json:"level" yaml:"level"`
-	Format            string   `json:"format" yaml:"format"`
-	OutputPaths       []string `json:"output_paths" yaml:"output_paths"`
-}
-
-type MigaduConf struct {
-	Email  string `json:"token" yaml:"token"`
-	APIKey string `json:"api_key" yaml:"api_key"`
-	Domain string `json:"domain" yaml:"domain"` // TODO 可配置
-	//Timeout int    `json:"timeout" yaml:"timeout"`
+	ServerConf *ServerConf `json:"server" mapstructure:"server"`
+	LogConf    *LogConf    `json:"log" mapstructure:"log"`
+	DB         *DBConf     `json:"db" mapstructure:"db"`
+	MigaduConf *MigaduConf `json:"migadu" mapstructure:"migadu"`
 }
 
 type ServerConf struct {
-	RunMode         string `json:"runmode" yaml:"runmode"`
-	WebAddr         string `json:"web_addr" yaml:"web_addr"`
-	InteriorWebAddr string `json:"interior_web_addr" yaml:"interior_web_addr"`
+	RunMode         string   `json:"run-mode" mapstructure:"run-mode"`
+	WebAddr         string   `json:"web-addr" mapstructure:"web-addr"`
+	InteriorWebAddr string   `json:"interior-web-addr" mapstructure:"interior-web-addr"`
+	Domains         []string `json:"domains" mapstructure:"domains"`
 }
 
-var config *Config
+type LogConf struct {
+	DisableSource     bool     `json:"disable-source" mapstructure:"disable-source"`
+	DisableStacktrace bool     `json:"disable-stacktrace" mapstructure:"disable-stacktrace"`
+	Level             string   `json:"level" mapstructure:"level"`
+	Format            string   `json:"format" mapstructure:"format"`
+	OutputPaths       []string `json:"output-paths" mapstructure:"output-paths"`
+}
+
+type DBConf struct {
+	Driver                string        `json:"driver" mapstructure:"driver"`
+	Path                  string        `json:"path" mapstructure:"path"`
+	WAL                   bool          `json:"wal" mapstructure:"wal"`
+	LogLevel              int32         `json:"log-level" mapstructure:"log-level"`
+	Host                  string        `json:"host" mapstructure:"host"`
+	Username              string        `json:"username" mapstructure:"username"`
+	Password              string        `json:"password" mapstructure:"password"`
+	Database              string        `json:"database" mapstructure:"database"`
+	MaxIdleConnections    int64         `json:"max-idle-connections" mapstructure:"max-idle-connections"`
+	MaxOpenConnections    int64         `json:"max-open-connections" mapstructure:"max-open-connections"`
+	MaxConnectionLifeTime time.Duration `json:"max-connection-life-time" mapstructure:"max-connection-life-time"`
+}
+
+type MigaduConf struct {
+	Email  string `json:"email" mapstructure:"email"`
+	APIKey string `json:"api-key" mapstructure:"api-key"`
+	Domain string `json:"domain" mapstructure:"domain"`
+}
+
+var config Config
 
 func GetConfig() *Config {
-	return config
+	return &config
 }
 
 // InitConfig 设置需要读取的配置文件名、环境变量，并读取配置文件内容到 viper 中.
@@ -48,7 +64,7 @@ func InitConfig(cfgFile string) error {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// 将用 `$HOME/<recommendedHomeDir>` 目录加入到配置文件的搜索路径中
-		viper.AddConfigPath("/etc/migadu-provider/")
+		viper.AddConfigPath("/etc/migadu-bridge/")
 		viper.AddConfigPath("/config")
 		// 把当前目录加入到配置文件的搜索路径中
 		viper.AddConfigPath("./conf/")
@@ -74,16 +90,17 @@ func InitConfig(cfgFile string) error {
 
 	// 读取配置文件。如果指定了配置文件名，则使用指定的配置文件，否则在注册的搜索路径中搜索
 	if err := viper.ReadInConfig(); err != nil {
-		log.Errorw("Failed to read viper configuration file", "err", err)
+		log.WithError(err).Error("Failed to read viper configuration file")
 		return err
 	}
+
 	if err := viper.Unmarshal(&config); err != nil {
-		log.Errorw("Failed to unmarshal viper configuration", "err", err)
+		log.WithError(err).Error("Failed to unmarshal viper configuration")
 		return err
 	}
 
 	// 打印 viper 当前使用的配置文件，方便 Debug.
-	log.Debugw("Using config file", "file", viper.ConfigFileUsed())
+	log.WithField("file", viper.ConfigFileUsed()).Info("Using config file")
 	return nil
 }
 
@@ -91,7 +108,7 @@ func InitConfig(cfgFile string) error {
 // 注意：`viper.Get<Type>()` 中 key 的名字需要使用 `.` 分割，以跟 YAML 中保持相同的缩进.
 func LogOptions() *log.Options {
 	return &log.Options{
-		DisableCaller:     config.LogConf.DisableCaller,
+		DisableSource:     config.LogConf.DisableSource,
 		DisableStacktrace: config.LogConf.DisableStacktrace,
 		Level:             config.LogConf.Level,
 		Format:            config.LogConf.Format,

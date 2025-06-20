@@ -11,11 +11,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	sloggin "github.com/samber/slog-gin"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
-	"migadu-bridge/ent"
-	"migadu-bridge/internal/migadubridge/store"
+	"migadu-bridge/internal/pkg/common"
 	"migadu-bridge/internal/pkg/config"
 	"migadu-bridge/internal/pkg/log"
 	"migadu-bridge/internal/pkg/middleware"
@@ -32,7 +31,6 @@ func NewMigaduBridgeCommand() *cobra.Command {
 		SilenceUsage: true,
 		// 指定调用 cmd.Execute() 时，执行的 Run 函数，函数执行失败会返回错误信息
 		RunE: func(cmd *cobra.Command, args []string) error {
-			defer log.Sync() // Sync 将缓存中的日志刷新到磁盘文件中
 			if err := mbInit(); err != nil {
 				return err
 			}
@@ -67,24 +65,36 @@ func run() error {
 	// 设置 Gin 模式
 	gin.SetMode(config.GetConfig().ServerConf.RunMode)
 
-	// DB Init
+	// 初始化 store 层
+	if err := initStore(); err != nil {
+		return err
+	}
 
-	_ = store.NewStore(client)
+	// 初始化 sloggin 的 RequestIDKey
+	sloggin.RequestIDKey = common.XRequestIDKey
 
 	// 创建 Gin 内部服务器
 	interiorWebHandler := gin.New()
 	interiorWebHandler.Use(gin.Recovery(),
 		middleware.Cors(),
-		middleware.RequestId())
+		middleware.RequestId(),
+		middleware.RequestTime(),
+		middleware.GinLog(),
+		middleware.ResponseTime(),
+	)
 	if err := installInteriorWebRouters(interiorWebHandler); err != nil {
 		return err
 	}
 
-	// 创建 Gin 引擎
+	// 创建 Gin 引擎 --针对 alias 创建请求
 	webHandler := gin.New()
 	webHandler.Use(gin.Recovery(),
 		middleware.Cors(),
-		middleware.RequestId())
+		middleware.RequestId(),
+		middleware.RequestTime(),
+		middleware.GinLog(),
+		middleware.ResponseTime(),
+	)
 	if err := installRouters(webHandler); err != nil {
 		return err
 	}
@@ -102,7 +112,7 @@ func run() error {
 	// kill -9 发送 syscall.SIGKILL 信号，但是不能被捕获，所以不需要添加它
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM) // 此处不会阻塞
 	<-quit                                               // 阻塞在此，当接收到上述两种信号时才会往下执行
-	log.Infow("Shutting down server ...")
+	log.Info("Shutting down server ...")
 
 	// 创建 ctx 用于通知服务器 goroutine, 它有 10 秒时间完成当前正在处理的请求
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -110,27 +120,27 @@ func run() error {
 
 	// 10 秒内优雅关闭服务（将未处理完的请求处理完再关闭服务），超过 10 秒就超时退出
 	if err := webSrv.Shutdown(ctx); err != nil {
-		log.Errorw("Web Server forced to shutdown", "err", err)
+		log.WithError(err).Error("Web Server forced to shutdown")
 		return err
 	}
 	if err := interiorWebSrv.Shutdown(ctx); err != nil {
-		log.Errorw("InteriorWeb Server forced to shutdown", "err", err)
+		log.WithError(err).Error("InteriorWeb Server forced to shutdown")
 		return err
 	}
-	log.Infow("Server exiting")
+	log.Info("Server exiting")
 	return nil
 }
 
 // startInsecureServer 创建并运行 HTTP 服务器.
 func startInsecureServer(addr string, g *gin.Engine) *http.Server {
 	// 创建 HTTP Server 实例
-	httpsrv := &http.Server{Addr: viper.GetString("addr"), Handler: g}
+	httpsrv := &http.Server{Addr: addr, Handler: g}
 	// 运行 HTTP 服务器。在 goroutine 中启动服务器，它不会阻止下面的正常关闭处理流程
 	// 打印一条日志，用来提示 HTTP 服务已经起来，方便排障
-	log.Infow("Start to listening the incoming requests on http address", "addr", viper.GetString("addr"))
+	log.WithField("addr", addr).Infow("Start to listening the incoming requests on http address")
 	go func() {
 		if err := httpsrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalw(err.Error())
+			log.WithError(err).Fatal()
 		}
 	}()
 	return httpsrv

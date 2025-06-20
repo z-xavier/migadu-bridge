@@ -18,8 +18,14 @@ func (err *Errmsg) Error() string {
 }
 
 // SetMessage 设置 Errno 类型错误中的 Message 字段.
-func (err *Errmsg) SetMessage(format string, args ...interface{}) *Errmsg {
+func (err *Errmsg) SetMessage(format string, args ...any) *Errmsg {
 	err.Message = fmt.Sprintf(format, args...)
+	return err
+}
+
+// WithCause 设置 Errno 类型错误中的 Message 字段.
+func (err *Errmsg) WithCause(cause error) *Errmsg {
+	err.Message = cause.Error()
 	return err
 }
 

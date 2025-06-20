@@ -3,7 +3,9 @@ package rwords
 import (
 	"bufio"
 	crand "crypto/rand"
+	"embed"
 	"errors"
+	"io"
 	"math"
 	"math/big"
 	mrand "math/rand"
@@ -12,26 +14,43 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"migadu-bridge/internal/pkg/log"
 )
 
-const UnixWordsPath = "/usr/share/dict/words"
-const DefaultWordsPath = "./conf/words.txt"
+var UnixWordsPath = ""
+
+const DefaultUnixWordsPath = "/usr/share/dict/words"
+const EmbedWordsPath = "words"
+
+//go:embed words
+var embedWord embed.FS
 
 var words = sync.OnceValue(func() []string {
-	filePath := UnixWordsPath
-	_, err := os.Stat(filePath)
-	if os.IsNotExist(err) {
-		filePath = DefaultWordsPath
+	if UnixWordsPath == "" {
+		UnixWordsPath = DefaultUnixWordsPath
 	}
 
-	file, err := os.Open(filePath)
-	if err != nil {
-		return []string{}
+	var r io.Reader
+
+	if file, err := os.Open(UnixWordsPath); err != nil {
+		log.WithError(err).WithField("path", UnixWordsPath).Info("Failed to Get Words From UnixWordsPath, Try Embed.")
+		if fs, err := embedWord.Open(EmbedWordsPath); err != nil {
+			log.WithError(err).Fatalw("Failed to open embedded words.")
+			return []string{}
+		} else {
+			defer fs.Close()
+			log.Infow("Get Words From Embed.")
+			r = fs
+		}
+	} else {
+		defer file.Close()
+		log.WithField("path", UnixWordsPath).Infow("Get Words From UnixWordsPath.")
+		r = file
 	}
-	defer file.Close()
 
 	var lines []string
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}

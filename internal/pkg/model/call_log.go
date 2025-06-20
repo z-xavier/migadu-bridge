@@ -3,12 +3,11 @@ package model
 import "time"
 
 type CallLog struct {
-	Id          string    `json:"id"`
-	TokenId     uint64    `json:"token_id"`
-	RequestPath string    `json:"request_path"`
+	Model
+	TokenId     string    `json:"token_id"`
+	Description string    `json:"description"`
 	GenAlias    string    `json:"gen_alias"`
-	RequestTime time.Time `json:"request_time"`
+	RequestPath string    `json:"request_path"`
 	RequestIp   string    `json:"request_ip"`
-	UpdatedTime time.Time `json:"updated_time"`
-	CreatedTime time.Time `json:"created_time"`
+	RequestAt   time.Time `json:"request_at"`
 }

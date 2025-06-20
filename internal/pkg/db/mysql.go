@@ -1,8 +1,3 @@
-// Copyright 2022 Innkeeper Belm(孔令飞) <nosbelm@qq.com>. All rights reserved.
-// Use of this source code is governed by a MIT style
-// license that can be found in the LICENSE file. The original repo for
-// this file is https://github.com/marmotedu/miniblog.
-
 package db
 
 import (
@@ -16,14 +11,14 @@ import (
 
 // MySQLOptions 定义 MySQL 数据库的选项.
 type MySQLOptions struct {
-	Host                  string
-	Username              string
-	Password              string
-	Database              string
-	MaxIdleConnections    int
-	MaxOpenConnections    int
-	MaxConnectionLifeTime time.Duration
-	LogLevel              int
+	Host                  string        `json:"host"`
+	Username              string        `json:"username"`
+	Password              string        `json:"password"`
+	Database              string        `json:"database"`
+	MaxIdleConnections    int           `json:"max-idle-connections"`
+	MaxOpenConnections    int           `json:"max-open-connections"`
+	MaxConnectionLifeTime time.Duration `json:"max-connection-life-time"`
+	LogLevel              int           `json:"log-level"`
 }
 
 // DSN 从 MySQLOptions 返回 DSN.
@@ -44,7 +39,9 @@ func NewMySQL(opts *MySQLOptions) (*gorm.DB, error) {
 		logLevel = logger.LogLevel(opts.LogLevel)
 	}
 	db, err := gorm.Open(mysql.Open(opts.DSN()), &gorm.Config{
-		Logger: logger.Default.LogMode(logLevel),
+		Logger:                                   logger.Default.LogMode(logLevel),
+		DisableForeignKeyConstraintWhenMigrating: true,
+		PrepareStmt:                              true,
 	})
 	if err != nil {
 		return nil, err
