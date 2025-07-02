@@ -28,6 +28,7 @@ EXPOSE 8080 8081
 
 # Build deps
 RUN apk --no-cache add \
+        curl \
         ca-certificates \
         && rm -rf /var/cache/apk/*
 
