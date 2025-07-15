@@ -3,7 +3,7 @@ package migadu
 import (
 	"sync"
 
-	"github.com/ZhangXavier/migadu-go"
+	"github.com/z-xavier/migadu-go"
 
 	"migadu-bridge/internal/pkg/config"
 )

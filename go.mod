@@ -5,7 +5,7 @@ go 1.24
 toolchain go1.24.0
 
 require (
-	github.com/ZhangXavier/migadu-go v0.0.0-20241222011451-78ddc37ad083
+	github.com/z-xavier/migadu-go v0.0.0-20241222011451-78ddc37ad083
 	github.com/bytedance/sonic v1.13.2
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-contrib/requestid v1.0.5
